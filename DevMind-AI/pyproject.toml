@@ -1,0 +1,80 @@
+[project]
+name = "devmind-ai"
+version = "0.1.0"
+description = "AI-powered developer platform with 10 intelligent agents"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    # Web Framework
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "python-multipart>=0.0.6",
+
+    # Database
+    "sqlalchemy[asyncio]>=2.0.25",
+    "asyncpg>=0.29.0",
+    "alembic>=1.13.1",
+
+    # Redis & Celery
+    "redis>=5.0.1",
+    "celery[redis]>=5.3.6",
+
+    # Vector Database
+    "qdrant-client>=1.7.0",
+
+    # LLM Providers
+    "anthropic>=0.18.0",
+    "google-generativeai>=0.3.2",
+    "openai>=1.12.0",
+
+    # Agent Framework
+    "agno>=2.10.0",
+
+    # Authentication
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "httpx>=0.26.0",
+
+    # Utilities
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.1.0",
+    "python-dotenv>=1.0.1",
+    "structlog>=24.1.0",
+    "tenacity>=8.2.3",
+
+    # Code Analysis
+    "tree-sitter>=0.20.4",
+    "gitpython>=3.1.41",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.4",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.26.0",
+    "ruff>=0.2.0",
+    "mypy>=1.8.0",
+    "pre-commit>=3.6.0",
+    "aiosqlite>=0.19.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v --cov=src --cov-report=term-missing"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
