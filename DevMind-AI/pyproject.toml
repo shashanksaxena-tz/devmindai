@@ -28,7 +28,7 @@ dependencies = [
     "openai>=1.12.0",
 
     # Agent Framework
-    "agno>=2.10.0",
+    "agno>=2.0.0",
 
     # Authentication
     "python-jose[cryptography]>=3.3.0",
@@ -45,6 +45,7 @@ dependencies = [
     # Code Analysis
     "tree-sitter>=0.20.4",
     "gitpython>=3.1.41",
+    "PyGitHub>=2.1.1",
 ]
 
 [project.optional-dependencies]
@@ -62,6 +63,9 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
 
 [tool.ruff]
 line-length = 100
