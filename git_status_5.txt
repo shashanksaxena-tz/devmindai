@@ -1,0 +1,32 @@
+On branch jules-1293667339480751029-cb8a13b4
+All conflicts fixed but you are still merging.
+  (use "git commit" to conclude merge)
+
+Changes to be committed:
+	modified:   DevMind-AI/HANDOFF.md
+	modified:   DevMind-AI/docs/PROGRESS.md
+	new file:   DevMind-AI/docs/plans/2026-01-20-devmind-phase13-cli-wrapper.md
+	new file:   DevMind-AI/docs/state/API_REFERENCE.md
+	new file:   DevMind-AI/docs/state/ARCHITECTURE.md
+	new file:   DevMind-AI/docs/state/PROJECT_STATE.md
+	new file:   DevMind-AI/docs/state/README.md
+	new file:   DevMind-AI/docs/state/USAGE_GUIDE.md
+	modified:   DevMind-AI/pyproject.toml
+	new file:   DevMind-AI/src/agents/debt_analyzer/__init__.py
+	new file:   DevMind-AI/src/agents/debt_analyzer/agent.py
+	new file:   DevMind-AI/src/agents/debt_analyzer/complexity.py
+	new file:   DevMind-AI/src/agents/debt_analyzer/duplication.py
+	new file:   DevMind-AI/src/agents/debt_analyzer/scorer.py
+	modified:   DevMind-AI/src/api/routes/__init__.py
+	new file:   DevMind-AI/src/api/routes/debt.py
+	new file:   DevMind-AI/tests/agents/debt_analyzer/test_agent.py
+	new file:   DevMind-AI/tests/agents/debt_analyzer/test_complexity.py
+	new file:   DevMind-AI/tests/agents/debt_analyzer/test_duplication.py
+	new file:   DevMind-AI/tests/agents/debt_analyzer/test_scorer.py
+	new file:   DevMind-AI/tests/api/test_debt.py
+	new file:   HANDOFF.md
+	new file:   python_info.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_status_5.txt
