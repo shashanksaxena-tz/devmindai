@@ -1,0 +1,44 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0 -- /home/jules/.pyenv/versions/3.12.12/bin/python
+cachedir: .pytest_cache
+rootdir: /app/DevMind-AI
+configfile: pyproject.toml
+plugins: asyncio-1.3.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 0 items / 1 error
+
+==================================== ERRORS ====================================
+_________ ERROR collecting tests/agents/query_optimizer/test_parser.py _________
+tests/agents/query_optimizer/test_parser.py:3: in <module>
+    from src.agents.query_optimizer.parser import QueryParser, QueryType
+src/agents/__init__.py:3: in <module>
+    from src.agents.base import AgentContext, AgentResult, BaseAgent
+src/agents/base.py:8: in <module>
+    from src.core.llm import BaseLLMClient, LLMRouter, TaskComplexity, get_llm_router
+src/core/__init__.py:3: in <module>
+    from src.core.config import Settings, get_settings
+src/core/config.py:69: in <module>
+    settings = get_settings()
+               ^^^^^^^^^^^^^^
+src/core/config.py:65: in get_settings
+    return Settings()
+           ^^^^^^^^^^
+/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pydantic_settings/main.py:194: in __init__
+    super().__init__(
+E   pydantic_core._pydantic_core.ValidationError: 4 validation errors for Settings
+E   DATABASE_URL
+E     Field required [type=missing, input_value={}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/missing
+E   ANTHROPIC_API_KEY
+E     Field required [type=missing, input_value={}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/missing
+E   GOOGLE_API_KEY
+E     Field required [type=missing, input_value={}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/missing
+E   SECRET_KEY
+E     Field required [type=missing, input_value={}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/missing
+=========================== short test summary info ============================
+ERROR tests/agents/query_optimizer/test_parser.py - pydantic_core._pydantic_c...
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.47s ===============================
