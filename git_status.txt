@@ -1,0 +1,37 @@
+On branch jules-1293667339480751029-cb8a13b4
+All conflicts fixed but you are still merging.
+  (use "git commit" to conclude merge)
+
+Changes to be committed:
+	modified:   DevMind-AI/HANDOFF.md
+	modified:   DevMind-AI/PROGRESS.md
+	new file:   DevMind-AI/debug_routes.py
+	modified:   DevMind-AI/docs/PROGRESS.md
+	modified:   DevMind-AI/pyproject.toml
+	new file:   DevMind-AI/routes.txt
+	new file:   DevMind-AI/src/agents/test_generator/__init__.py
+	new file:   DevMind-AI/src/agents/test_generator/agent.py
+	new file:   DevMind-AI/src/agents/test_generator/analyzer.py
+	new file:   DevMind-AI/src/agents/test_generator/coverage.py
+	new file:   DevMind-AI/src/agents/test_generator/generator.py
+	new file:   DevMind-AI/src/agents/test_generator/strategist.py
+	new file:   DevMind-AI/src/agents/test_generator/validator.py
+	modified:   DevMind-AI/src/api/routes/__init__.py
+	new file:   DevMind-AI/src/api/routes/tests.py
+	new file:   DevMind-AI/test_results.txt
+	new file:   DevMind-AI/test_results_2.txt
+	new file:   DevMind-AI/test_results_3.txt
+	new file:   DevMind-AI/test_results_4.txt
+	new file:   DevMind-AI/test_results_5.txt
+	new file:   DevMind-AI/test_results_6.txt
+	new file:   DevMind-AI/test_results_final.txt
+	new file:   DevMind-AI/tests/agents/test_generator/test_agent.py
+	new file:   DevMind-AI/tests/agents/test_generator/test_analyzer.py
+	new file:   DevMind-AI/tests/agents/test_generator/test_generator.py
+	new file:   DevMind-AI/tests/agents/test_generator/test_strategist.py
+	new file:   DevMind-AI/tests/agents/test_generator/test_validator.py
+	new file:   DevMind-AI/tests/api/test_tests.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_status.txt
