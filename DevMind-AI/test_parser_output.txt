@@ -1,0 +1,1 @@
+ERROR: /app/DevMind-AI/pyproject.toml: Invalid value (at line 31, column 1)

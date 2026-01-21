@@ -1,0 +1,189 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0 -- /home/jules/.pyenv/versions/3.12.12/bin/python
+cachedir: .pytest_cache
+rootdir: /app/DevMind-AI
+configfile: pyproject.toml
+plugins: mock-3.15.1, cov-7.0.0, anyio-4.12.1, asyncio-1.3.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 6 items
+
+tests/agents/test_generator/test_agent.py::TestTestGeneratorAgent::test_generate_tests_for_file PASSED [ 16%]
+tests/agents/test_generator/test_agent.py::TestTestGeneratorAgent::test_generate_tests_for_function FAILED [ 33%]
+tests/agents/test_generator/test_agent.py::TestTestGeneratorAgent::test_validate_and_filter PASSED [ 50%]
+tests/agents/test_generator/test_agent.py::TestTestGeneratorAgent::test_agent_properties PASSED [ 66%]
+tests/api/test_tests.py::test_generate_tests_endpoint FAILED             [ 83%]
+tests/api/test_tests.py::test_generate_function_tests FAILED             [100%]
+
+=================================== FAILURES ===================================
+___________ TestTestGeneratorAgent.test_generate_tests_for_function ____________
+
+self = <test_agent.TestTestGeneratorAgent object at 0x7fef3275f830>
+agent = <src.agents.test_generator.agent.TestGeneratorAgent object at 0x7fef308d6990>
+
+    @pytest.mark.asyncio
+    async def test_generate_tests_for_function(self, agent):
+        """Generate tests for a specific function."""
+        context = AgentContext(repository_id="test-repo")
+
+        test_mock = MagicMock(code="def test_process(): pass")
+        test_mock.name = "test_process"
+        test_mock.imports = []
+        test_mock.description = "Test process"
+        agent.generator.generate_tests = AsyncMock(return_value=[test_mock])
+
+        result = await agent.generate_for_function(
+            context,
+            function_code="def process(x): return x * 2",
+            function_name="process",
+        )
+
+>       assert len(result["tests"]) > 0
+E       assert 0 > 0
+E        +  where 0 = len([])
+
+tests/agents/test_generator/test_agent.py:74: AssertionError
+_________________________ test_generate_tests_endpoint _________________________
+
+mock_agent = <AsyncMock name='TestGeneratorAgent()' id='140665288980912'>
+
+    def test_generate_tests_endpoint(mock_agent):
+        """Test generating tests endpoint."""
+        mock_agent.execute.return_value = {
+            "tests": [{"name": "test_func", "code": "pass"}],
+            "test_file_content": "def test_func(): pass",
+            "test_file_path": "tests/test_file.py",
+            "functions_analyzed": 1,
+            "tests_generated": 1,
+        }
+
+        response = client.post(
+            "/api/v1/tests/generate",
+            json={
+                "code": "def func(): pass",
+                "file_path": "src/file.py",
+                "framework": "pytest",
+            },
+        )
+
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests/api/test_tests.py:43: AssertionError
+_________________________ test_generate_function_tests _________________________
+
+mock_agent = <AsyncMock name='TestGeneratorAgent()' id='140665288913888'>
+
+    def test_generate_function_tests(mock_agent):
+        """Test generating function tests endpoint."""
+        mock_agent.generate_for_function.return_value = {
+            "tests": [{"name": "test_func", "code": "pass"}],
+            "function_name": "func",
+        }
+
+        response = client.post(
+            "/api/v1/tests/generate-function",
+            json={
+                "function_code": "def func(): pass",
+                "function_name": "func",
+            },
+        )
+
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests/api/test_tests.py:63: AssertionError
+=============================== warnings summary ===============================
+src/core/llm/gemini.py:6
+  /app/DevMind-AI/src/core/llm/gemini.py:6: FutureWarning:
+
+  All support for the `google.generativeai` package has ended. It will no longer be receiving
+  updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+  See README for more details:
+
+  https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+    import google.generativeai as genai
+
+src/agents/test_generator/agent.py:15
+  /app/DevMind-AI/src/agents/test_generator/agent.py:15: PytestCollectionWarning: cannot collect test class 'TestGeneratorAgent' because it has a __init__ constructor (from: tests/agents/test_generator/test_agent.py)
+    class TestGeneratorAgent(BaseAgent):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.12-final-0 _______________
+
+Name                                                  Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------------------------
+src/__init__.py                                           0      0   100%
+src/agents/__init__.py                                    2      0   100%
+src/agents/base.py                                       50     11    78%   41, 46, 68, 81, 93-97, 120, 145
+src/agents/code_reviewer/__init__.py                      0      0   100%
+src/agents/code_reviewer/context_gatherer.py             95     60    37%   46, 55-60, 77-87, 96-114, 118-126, 130-142, 152-157, 167-170, 189-217
+src/agents/code_reviewer/diff_parser.py                 131     77    41%   45, 55, 59, 63, 107-187, 197-222, 226-229, 234
+src/agents/code_reviewer/orchestrator.py                 55     34    38%   49-71, 91-108, 119-128, 144-165, 169, 173-176, 180
+src/agents/code_reviewer/reviewers/__init__.py            8      0   100%
+src/agents/code_reviewer/reviewers/base.py               66     18    73%   38, 52, 56, 61, 73, 84, 94, 125-147
+src/agents/code_reviewer/reviewers/correctness.py        18      8    56%   26-63, 76
+src/agents/code_reviewer/reviewers/documentation.py      18      8    56%   26-63, 76
+src/agents/code_reviewer/reviewers/performance.py        18      8    56%   26-63, 76
+src/agents/code_reviewer/reviewers/security.py           19      8    58%   39-77, 90
+src/agents/code_reviewer/reviewers/style.py              21     11    48%   26-63, 77-81
+src/agents/code_reviewer/reviewers/testing.py            28     18    36%   26-63, 77-106
+src/agents/code_reviewer/synthesizer.py                 135    103    24%   27, 31, 57, 62-77, 85-98, 105-111, 118-121, 129-165, 182-204, 215-263, 267-283
+src/agents/test_generator/__init__.py                     0      0   100%
+src/agents/test_generator/agent.py                       80     10    88%   59-60, 68, 90-94, 142, 149-150, 191, 199
+src/agents/test_generator/analyzer.py                   141     57    60%   68-72, 80-81, 92-93, 96-97, 105-107, 120, 126-127, 131, 220-243, 255-263, 272-294, 303-314
+src/agents/test_generator/coverage.py                    92     64    30%   32-33, 56-70, 78-96, 104-147, 151-175, 183-208
+src/agents/test_generator/generator.py                   84     33    61%   67-122, 131-163, 172-200, 208-248
+src/agents/test_generator/strategist.py                  98     49    50%   82-121, 128-146, 157-181, 188-212, 216-239, 248-270
+src/agents/test_generator/validator.py                  114     45    61%   84-88, 95-96, 104-125, 148, 154, 167-187, 200-239, 254-255, 260, 262
+src/agents/vuln_scanner/__init__.py                       5      0   100%
+src/agents/vuln_scanner/agent.py                         93     66    29%   38-48, 62-69, 85-169, 184-190, 209-226, 243-273, 289-295, 303
+src/agents/vuln_scanner/analyzer/__init__.py              2      0   100%
+src/agents/vuln_scanner/analyzer/exploitability.py      107     85    21%   34, 46, 66-110, 114-136, 146-173, 183-239, 259-314
+src/agents/vuln_scanner/parsers/__init__.py               4      0   100%
+src/agents/vuln_scanner/parsers/base.py                  31      9    71%   26-35, 38, 41-43, 65, 77
+src/agents/vuln_scanner/parsers/npm.py                   56     45    20%   25-63, 71-93, 112-138, 149-159
+src/agents/vuln_scanner/parsers/pip.py                   75     62    17%   25-33, 44-62, 73-94, 110-130, 141-160, 171-180
+src/agents/vuln_scanner/vuln_db/__init__.py               4      0   100%
+src/agents/vuln_scanner/vuln_db/base.py                  31      8    74%   32-38, 61, 76
+src/agents/vuln_scanner/vuln_db/github_advisory.py       81     66    19%   24-25, 30-35, 46-124, 131-139, 143-171, 191-210, 214-216
+src/agents/vuln_scanner/vuln_db/osv.py                   70     57    19%   20, 25-27, 38-66, 73-109, 114-145, 162-164
+src/api/deps.py                                          14      7    50%   14-20
+src/api/main.py                                          24      6    75%   18-21, 50, 56, 67
+src/api/routes/__init__.py                                9      0   100%
+src/api/routes/reviews.py                               177     98    45%   121-140, 155-244, 253-257, 278-322, 336-366, 387-409, 436, 454
+src/api/routes/security.py                              132    107    19%   33-129, 154-182, 211-230, 244-273, 295-316
+src/api/routes/tests.py                                  52     15    71%   57-72, 87-102, 112, 127-136, 146
+src/api/schemas/__init__.py                               4      0   100%
+src/api/schemas/organization.py                          19      0   100%
+src/api/schemas/repository.py                            30      0   100%
+src/api/schemas/security.py                              49      0   100%
+src/core/__init__.py                                      2      0   100%
+src/core/auth/__init__.py                                 5      1    80%   8
+src/core/config.py                                       33      2    94%   54, 59
+src/core/llm/__init__.py                                  9      2    78%   10, 14
+src/core/llm/base.py                                      9      2    78%   32, 54
+src/core/llm/claude.py                                   26     17    35%   21-22, 34-45, 56-81
+src/core/llm/gemini.py                                   29     20    31%   21-22, 34-48, 59-84
+src/core/llm/router.py                                   36     17    53%   24-25, 30-32, 37-39, 50-57, 69-85, 91
+src/db/__init__.py                                        3      0   100%
+src/db/base.py                                           11      1    91%   33
+src/db/models/__init__.py                                 6      0   100%
+src/db/models/organization.py                            15      1    93%   35
+src/db/models/pr_review.py                               15      0   100%
+src/db/models/repository.py                              21      1    95%   38
+src/db/models/security.py                                41      2    95%   52, 90
+src/db/models/user.py                                    28      2    93%   35, 59
+src/db/session.py                                        14      8    43%   30-38
+src/integrations/__init__.py                              0      0   100%
+src/integrations/github.py                               44     32    27%   16-20, 24-27, 40-44, 58-60, 64-72, 76-93, 99-100
+-----------------------------------------------------------------------------------
+TOTAL                                                  2689   1361    49%
+=========================== short test summary info ============================
+FAILED tests/agents/test_generator/test_agent.py::TestTestGeneratorAgent::test_generate_tests_for_function
+FAILED tests/api/test_tests.py::test_generate_tests_endpoint - assert 404 == 200
+FAILED tests/api/test_tests.py::test_generate_function_tests - assert 404 == 200
+=================== 3 failed, 3 passed, 2 warnings in 13.86s ===================
