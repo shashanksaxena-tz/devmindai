@@ -1,0 +1,28 @@
+On branch jules-1293667339480751029-cb8a13b4
+All conflicts fixed but you are still merging.
+  (use "git commit" to conclude merge)
+
+Changes to be committed:
+	modified:   DevMind-AI/HANDOFF.md
+	modified:   DevMind-AI/docs/PROGRESS.md
+	modified:   DevMind-AI/pyproject.toml
+	new file:   DevMind-AI/src/agents/incident_responder/__init__.py
+	new file:   DevMind-AI/src/agents/incident_responder/agent.py
+	new file:   DevMind-AI/src/agents/incident_responder/diagnosis.py
+	new file:   DevMind-AI/src/agents/incident_responder/postmortem.py
+	new file:   DevMind-AI/src/agents/incident_responder/receiver.py
+	new file:   DevMind-AI/src/agents/incident_responder/runbook.py
+	new file:   DevMind-AI/src/agents/incident_responder/triage.py
+	modified:   DevMind-AI/src/api/routes/__init__.py
+	new file:   DevMind-AI/src/api/routes/incidents.py
+	new file:   DevMind-AI/tests/agents/incident_responder/__init__.py
+	new file:   DevMind-AI/tests/agents/incident_responder/test_agent.py
+	new file:   DevMind-AI/tests/agents/incident_responder/test_diagnosis.py
+	new file:   DevMind-AI/tests/agents/incident_responder/test_postmortem.py
+	new file:   DevMind-AI/tests/agents/incident_responder/test_runbook.py
+	new file:   DevMind-AI/tests/agents/incident_responder/test_triage.py
+	new file:   DevMind-AI/tests/api/test_incidents.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_status_7.txt
