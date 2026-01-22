@@ -1,0 +1,8 @@
+Python 3.12.12
+Package           Version
+----------------- -------
+greenlet          3.2.4
+pip               25.3
+playwright        1.55.0
+pyee              13.0.0
+typing_extensions 4.15.0
