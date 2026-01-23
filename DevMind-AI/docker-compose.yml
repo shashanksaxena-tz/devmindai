@@ -71,12 +71,12 @@ services:
         condition: service_started
     command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # Celery Worker
-  worker:
+  # Celery Worker - High Priority Queue
+  worker-high:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: devmind-worker
+    container_name: devmind-worker-high
     volumes:
       - .:/app
     environment:
@@ -91,7 +91,51 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: celery -A src.core.celery_app worker --loglevel=info
+    command: celery -A src.core.celery_app worker --loglevel=info -Q high_priority --concurrency=2
+    profiles:
+      - full
+
+  # Celery Worker - Default Queue
+  worker-default:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: devmind-worker-default
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://devmind:devmind@postgres:5432/devmind
+      - REDIS_URL=redis://redis:6379/0
+      - QDRANT_URL=http://qdrant:6333
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - SECRET_KEY=${SECRET_KEY:-development-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A src.core.celery_app worker --loglevel=info -Q default,low_priority --concurrency=4
+    profiles:
+      - full
+
+  # Streamlit Dashboard
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: devmind-dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    environment:
+      - API_URL=http://api:8000
+      - DATABASE_URL=postgresql+asyncpg://devmind:devmind@postgres:5432/devmind
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - api
+    command: streamlit run src/dashboard/app.py --server.port=8501 --server.address=0.0.0.0
     profiles:
       - full
 

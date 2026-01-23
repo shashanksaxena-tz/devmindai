@@ -27,8 +27,12 @@ dependencies = [
     "google-generativeai>=0.3.2",
     "openai>=1.12.0",
 
-    # Agent Framework
-    "agno>=2.10.0",
+    # Agent Framework (optional - for advanced agent orchestration)
+    # "agno>=2.4.0",  # Uncomment if needed
+
+    # Dashboard
+    "streamlit>=1.31.0",
+    "plotly>=5.18.0",
 
     # Authentication
     "python-jose[cryptography]>=3.3.0",
