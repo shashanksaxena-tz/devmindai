@@ -3,12 +3,13 @@
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
 from src.api.routes import api_router
 from src.core.config import settings
+from src.api.websocket import websocket_endpoint
 
 
 @asynccontextmanager
@@ -69,3 +70,9 @@ async def ready_check() -> dict[str, Any]:
         "database": "connected",
         "redis": "connected",
     }
+
+
+@app.websocket("/ws/{repo_id}")
+async def ws_repo_updates(websocket: WebSocket, repo_id: str):
+    """WebSocket endpoint for real-time repo updates."""
+    await websocket_endpoint(websocket, repo_id)

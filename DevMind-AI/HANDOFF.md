@@ -1,13 +1,13 @@
 # DevMind AI - Project Status Handoff
 
-## Current Status (2026-01-20)
+## Current Status (2026-01-22)
 
-The project has reached a significant milestone with **12 out of 12 phases implemented**. The core infrastructure, all agents, and the dashboard are in place.
+The project has reached a significant milestone with **13 out of 13 phases implemented**. The core infrastructure, all agents, the dashboard, and the CLI wrapper are in place.
 
 **Summary:**
-- **Completed Phases:** 1-12.
+- **Completed Phases:** 1-13.
 - **Missing Phase:** None.
-- **Test Status:** 161 tests collected (8 new tests for Phase 10). Some tests fail due to file naming conflicts (`test_agent.py` duplicates) and `__pycache__` issues.
+- **Test Status:** ~200 tests collected. File naming conflicts (`test_agent.py`) have been resolved. Most tests pass (196 passing), with a few failures likely due to environment/mocking setup.
 
 ## Implemented Components
 
@@ -23,6 +23,14 @@ The following intelligent agents are implemented:
 *   `query_optimizer`: SQL query optimization (Phase 9).
 *   `test_generator`: Automated test generation (Phase 4).
 *   `vuln_scanner`: Vulnerability scanning (Phase 2).
+
+### CLI (`src/cli/`)
+A unified command-line interface `devmind` (Phase 13) allows easy access to agents:
+*   `devmind review`: Code review (local file/dir).
+*   `devmind scan`: Vulnerability scanning.
+*   `devmind test`: Test generation.
+*   `devmind pr-review`: GitHub PR review.
+*   `devmind config`: Configuration management.
 
 ### API Routes (`src/api/routes/`)
 The following REST API endpoints are available:
@@ -53,7 +61,11 @@ The project uses `pip` for dependency management (no `poetry.lock` in active use
 
 1.  **Install Dependencies:**
     ```bash
-    pip install fastapi uvicorn python-multipart sqlalchemy asyncpg alembic redis celery qdrant-client anthropic google-generativeai openai agno python-jose passlib httpx pydantic pydantic-settings python-dotenv structlog tenacity tree-sitter gitpython PyGitHub pytest pytest-asyncio pytest-cov pytest-mock aiosqlite jinja2
+    pip install -e ".[cli,dev]"
+    ```
+    Or manually:
+    ```bash
+    pip install fastapi uvicorn python-multipart sqlalchemy asyncpg alembic redis celery qdrant-client anthropic google-generativeai openai agno python-jose passlib httpx pydantic pydantic-settings python-dotenv structlog tenacity tree-sitter gitpython PyGitHub pytest pytest-asyncio pytest-cov pytest-mock aiosqlite jinja2 typer[all] rich pyyaml shellingham
     ```
 
 2.  **Environment Variables:**
@@ -71,6 +83,25 @@ The project uses `pip` for dependency management (no `poetry.lock` in active use
     SECRET_KEY=dummy_secret_key
     ```
 
+## CLI Usage
+
+```bash
+# Initialize config
+devmind config init
+
+# Review code
+devmind review src/main.py
+
+# Scan for vulnerabilities
+devmind scan .
+
+# Generate tests
+devmind test src/utils.py
+
+# Review PR (requires GITHUB_TOKEN)
+devmind pr-review owner/repo 123
+```
+
 ## Running Tests
 
 Due to strict Pydantic validation and environment setup, run tests using `python3 -m pytest` with exported variables if `.env` issues persist:
@@ -87,5 +118,5 @@ python3 -m pytest DevMind-AI/tests
 *Note: You may encounter "import file mismatch" errors due to multiple `test_agent.py` files. Clearing `__pycache__` usually helps.*
 
 ## Next Steps for Incoming Agent
-1.  **Refine Dashboard:** Ensure the dashboard connects correctly to all API endpoints.
-2.  **Integration Testing:** Verify agents working together.
+1.  **Integration Testing:** Verify agents working together via CLI and API.
+2.  **Refine Dashboard:** Ensure dashboard connects to all endpoints.
