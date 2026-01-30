@@ -1,5 +1,7 @@
 # DevMind AI - Progress Tracker
 
+**Active Handoff Document:** [HANDOFF.md](./HANDOFF.md)
+
 ## Phase Status
 
 | Phase | Name | Status | Completion Date | Notes |
@@ -13,9 +15,10 @@
 | 7 | IncidentResponder | ✅ Completed | 2026-01-22 | Alert correlation |
 | 8 | CodeMigrator Agent | ✅ Completed | 2026-01-22 | Language/Framework migration |
 | 9 | QueryOptimizer | ✅ Completed | 2026-01-22 | SQL optimization |
-| 10 | ADRRecorder Agent | ⏳ Pending | - | Architecture decisions |
-| 11 | PipelineGenerator | ⏳ Pending | - | CI/CD pipelines |
-| 12 | Dashboard | ⏳ Pending | - | Frontend dashboard |
+| 10 | ADRRecorder Agent | ✅ Completed | 2026-01-22 | Architecture decisions |
+| 11 | PipelineGenerator | ✅ Completed | 2026-01-22 | CI/CD pipelines |
+| 12 | Dashboard | ✅ Completed | 2026-01-22 | Frontend dashboard & GitHub Integration |
+| 13 | CLI Wrapper | ✅ Completed | 2026-01-22 | Unified CLI tool |
 
 ## Detailed Progress
 
@@ -79,3 +82,24 @@
 - [x] Explain Analyzer
 - [x] Optimization Suggester
 - [x] Query Optimizer Agent & API
+
+### Phase 10: ADRRecorder (✅ Done)
+- [x] Decision Capture Agent
+- [x] ADR Writer
+- [x] ADR Indexer
+- [x] ADR Recorder Agent & API
+
+### Phase 11: PipelineGenerator (✅ Done)
+- [x] Project Analyzer
+- [x] Template Library
+- [x] Pipeline Optimizer
+- [x] Pipeline Generator Agent & API
+
+### Phase 12: Dashboard (✅ Done)
+- [x] Dashboard Backend API
+- [x] Streamlit Dashboard Frontend
+- [x] GitHub Integration (Webhooks)
+
+### Phase 13: CLI Wrapper (✅ Done)
+- [x] Unified `devmind` CLI
+- [x] Subcommands: `review`, `scan`, `test`, `pr-review`, `config`
