@@ -8,6 +8,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 from rich.panel import Panel
 from rich.console import Console
+from rich.tree import Tree
 
 from src.cli.output.formatters import OutputFormatter
 
@@ -17,6 +18,7 @@ async def run_document(
     formats: List[str],
     output_dir: Optional[Path],
     write_files: bool,
+    output_to_project: bool,
     analyze_only: bool,
     format_output: str,
 ):
@@ -51,18 +53,17 @@ async def run_document(
         TextColumn("[progress.description]{task.description}"),
         transient=True,
     ) as progress:
-        task = progress.add_task("Analyzing and generating documentation...", total=None)
+        progress.add_task("Analyzing and generating documentation...", total=None)
 
         context = AgentContext()
-
-        # Determine output location
-        target_path = output_dir if output_dir else path
 
         result = await agent.execute(
             context,
             path=str(path),
             formats=formats,
             write_files=write_files,
+            output_to_project=output_to_project,
+            output_dir=str(output_dir) if output_dir else None,
         )
 
     if not result.get("success"):
@@ -127,6 +128,8 @@ def _print_generation_summary(console: Console, result: dict, files_written: boo
     profile = result.get("profile", {})
     docs = result.get("generated_docs", [])
     written = result.get("written_files", [])
+    output_path = result.get("output_path")
+    readme_path = result.get("readme_path")
 
     OutputFormatter.print_header(f"Documentation Generated: {profile.get('name', 'Project')}")
 
@@ -142,13 +145,17 @@ def _print_generation_summary(console: Console, result: dict, files_written: boo
 
     table = Table(show_header=True)
     table.add_column("Format", style="cyan")
-    table.add_column("File Path")
+    table.add_column("File")
     table.add_column("Description")
 
     for doc in docs:
         format_name = doc.get("format", "unknown")
         file_path = doc.get("path", "")
         description = doc.get("description", "")
+
+        # Skip error entries
+        if file_path.startswith("error_"):
+            continue
 
         # Color code by format
         format_colors = {
@@ -165,7 +172,7 @@ def _print_generation_summary(console: Console, result: dict, files_written: boo
         table.add_row(
             f"[{color}]{format_name}[/{color}]",
             file_path,
-            description[:50] + "..." if len(description) > 50 else description,
+            description[:40] + "..." if len(description) > 40 else description,
         )
 
     console.print(table)
@@ -173,17 +180,69 @@ def _print_generation_summary(console: Console, result: dict, files_written: boo
 
     # Summary
     formats_generated = result.get("formats_generated", [])
-    console.print(f"[bold]Formats generated:[/bold] {', '.join(formats_generated)}")
-    console.print(f"[bold]Total files:[/bold] {len(docs)}")
+    console.print(f"[bold]Formats:[/bold] {', '.join(formats_generated)}")
+    console.print(f"[bold]Files:[/bold] {len([d for d in docs if not d.get('path', '').startswith('error_')])}")
 
-    if files_written:
-        console.print(f"[bold]Files written:[/bold] {len(written)}")
-        if written:
+    if files_written and written:
+        console.print(f"[bold]Written:[/bold] {len(written)} files")
+        console.print()
+
+        # Show output location
+        if output_path:
+            console.print(Panel(
+                f"[green]Output saved to:[/green]\n{output_path}",
+                title="Output Location",
+                border_style="green",
+            ))
+
+        # Show tree structure of output
+        if output_path:
             console.print()
-            OutputFormatter.print_success(f"Files written to disk ({len(written)} files)")
+            _print_output_tree(console, output_path, formats_generated)
+
+        if readme_path:
+            console.print()
+            console.print(f"[dim]README with usage instructions: {readme_path}[/dim]")
+
+        console.print()
+        OutputFormatter.print_success(f"Documentation generated successfully!")
+
     else:
         console.print()
-        console.print("[dim]Use --write to write files to disk[/dim]")
+        console.print("[dim]Use -w or --write to write files to disk[/dim]")
+        console.print("[dim]Use --to-project to write directly to the target project[/dim]")
+
+
+def _print_output_tree(console: Console, output_path: str, formats: List[str]) -> None:
+    """Print tree structure of output directory."""
+    tree = Tree(f"[bold]{Path(output_path).name}/[/bold]")
+
+    for fmt in sorted(formats):
+        fmt_branch = tree.add(f"[cyan]{fmt}/[/cyan]")
+        # Add typical files for each format
+        if fmt == "claude":
+            fmt_branch.add("CLAUDE.md")
+        elif fmt == "copilot":
+            fmt_branch.add("copilot-instructions.md")
+        elif fmt == "cursor":
+            rules = fmt_branch.add("rules/")
+            rules.add("index.mdc")
+            rules.add("*.mdc")
+        elif fmt == "gemini":
+            fmt_branch.add("GEMINI.md")
+        elif fmt == "windsurf":
+            fmt_branch.add("*.md")
+        elif fmt == "speckit":
+            memory = fmt_branch.add("memory/")
+            memory.add("constitution.md")
+        elif fmt == "human":
+            fmt_branch.add("README.generated.md")
+            fmt_branch.add("ARCHITECTURE.md")
+            fmt_branch.add("CONTRIBUTING.md")
+
+    tree.add("[green]README.md[/green] (usage guide)")
+
+    console.print(tree)
 
 
 def document_command(
@@ -206,12 +265,17 @@ def document_command(
     write: bool = typer.Option(
         False,
         "--write", "-w",
-        help="Write generated files to disk",
+        help="Write generated files to devmind-output/ directory",
+    ),
+    to_project: bool = typer.Option(
+        False,
+        "--to-project", "-p",
+        help="Write files directly to the target project (instead of devmind-output/)",
     ),
     output_dir: Optional[Path] = typer.Option(
         None,
         "--output", "-o",
-        help="Output directory (defaults to project path)",
+        help="Custom output directory (default: devmind-output/project-documenter/)",
     ),
     analyze: bool = typer.Option(
         False,
@@ -238,7 +302,7 @@ def document_command(
     Generate AI-agent documentation for a project.
 
     This command analyzes a codebase and generates documentation for various
-    AI coding assistants:
+    AI coding assistants. Output is organized in devmind-output/ by default.
 
     \b
     AI Agent Formats:
@@ -254,12 +318,18 @@ def document_command(
     - human: Human-readable docs (README, ARCHITECTURE, CONTRIBUTING)
 
     \b
+    Output Modes:
+    - Default (-w): Write to devmind-output/project-documenter/{project}-{timestamp}/
+    - To project (-p): Write directly to target project directory
+
+    \b
     Examples:
-        devmind document                     # Analyze current dir, show AI docs
-        devmind document ./myproject -w      # Generate and write AI docs
-        devmind document . --all -w          # Generate all formats and write
-        devmind document . -f claude -f copilot -w  # Specific formats
-        devmind document . --analyze         # Only analyze, no generation
+        devmind document                         # Analyze only, show results
+        devmind document ./myproject -w          # Generate to devmind-output/
+        devmind document ./myproject -w -p       # Generate directly to project
+        devmind document . --all -w              # All formats to devmind-output/
+        devmind document . -f claude -f copilot -w   # Specific formats
+        devmind document . --analyze             # Only analyze, no generation
     """
     # Determine formats
     if all_formats:
@@ -282,6 +352,7 @@ def document_command(
             formats=selected_formats,
             output_dir=output_dir,
             write_files=write,
+            output_to_project=to_project,
             analyze_only=analyze,
             format_output=format_output,
         )

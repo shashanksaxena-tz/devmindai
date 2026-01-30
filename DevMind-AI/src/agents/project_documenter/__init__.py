@@ -13,6 +13,7 @@ This agent analyzes codebases and generates documentation in multiple formats:
 from .agent import ProjectDocumenterAgent
 from .analyzer import CodebaseAnalyzer, CodebaseProfile
 from .generators.base import BaseDocGenerator, GeneratedDoc
+from .output_manager import OutputManager
 
 __all__ = [
     "ProjectDocumenterAgent",
@@ -20,4 +21,5 @@ __all__ = [
     "CodebaseProfile",
     "BaseDocGenerator",
     "GeneratedDoc",
+    "OutputManager",
 ]

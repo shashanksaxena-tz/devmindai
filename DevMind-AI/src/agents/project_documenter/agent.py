@@ -14,6 +14,7 @@ from src.agents.base import BaseAgent, AgentContext
 from src.core.llm import TaskComplexity, LLMRouter
 
 from .analyzer import CodebaseAnalyzer, CodebaseProfile
+from .output_manager import OutputManager
 from .generators.base import GeneratedDoc
 from .generators.claude import ClaudeDocGenerator
 from .generators.copilot import CopilotDocGenerator
@@ -103,6 +104,8 @@ class ProjectDocumenterAgent(BaseAgent):
                 path: Path to the project to analyze (required)
                 formats: List of output formats (default: all AI formats)
                 write_files: Whether to write files to disk (default: False)
+                output_to_project: Write directly to project (default: False)
+                output_dir: Custom output directory (default: devmind-output/)
                 include_human: Include human-readable docs (default: False)
                 include_speckit: Include Spec Kit constitution (default: False)
                 generator_options: Dict of format-specific options
@@ -112,6 +115,7 @@ class ProjectDocumenterAgent(BaseAgent):
                 - profile: Analyzed codebase profile
                 - generated_docs: List of generated documentation files
                 - written_files: List of files written (if write_files=True)
+                - output_path: Path to output directory
         """
         path = kwargs.get("path")
         if not path:
@@ -166,25 +170,62 @@ class ProjectDocumenterAgent(BaseAgent):
                         )
                     )
 
+        # Prepare result
+        profile_dict = self._profile_to_dict(profile)
+        doc_list = [
+            {
+                "path": doc.path,
+                "format": doc.format_name,
+                "description": doc.description,
+                "content_preview": doc.content[:500] + "..." if len(doc.content) > 500 else doc.content,
+                "content": doc.content,  # Full content for internal use
+            }
+            for doc in generated_docs
+        ]
+        formats_generated = list(set(doc.format_name for doc in generated_docs if not doc.path.startswith("error_")))
+
         # Write files if requested
         written_files = []
+        output_path = None
+        readme_path = None
+
         if kwargs.get("write_files", False):
-            written_files = await self._write_files(project_path, generated_docs)
+            output_to_project = kwargs.get("output_to_project", False)
+            custom_output_dir = kwargs.get("output_dir")
+
+            if output_to_project:
+                # Write directly to project directory
+                written_files = await self._write_files(project_path, generated_docs)
+                output_path = str(project_path)
+            else:
+                # Use organized output manager
+                output_manager = OutputManager(
+                    base_path=Path(custom_output_dir) if custom_output_dir else None,
+                    project_name=profile.name,
+                )
+
+                # Write organized docs
+                written_files = output_manager.write_docs(generated_docs, organize_by_format=True)
+
+                # Write summary README
+                readme_path = output_manager.write_readme(
+                    profile_dict, doc_list, formats_generated
+                )
+
+                output_path = str(output_manager.output_path)
+
+        # Remove full content from public result
+        for doc in doc_list:
+            doc.pop("content", None)
 
         return {
             "success": True,
-            "profile": self._profile_to_dict(profile),
-            "generated_docs": [
-                {
-                    "path": doc.path,
-                    "format": doc.format_name,
-                    "description": doc.description,
-                    "content_preview": doc.content[:500] + "..." if len(doc.content) > 500 else doc.content,
-                }
-                for doc in generated_docs
-            ],
+            "profile": profile_dict,
+            "generated_docs": doc_list,
             "written_files": written_files,
-            "formats_generated": list(set(doc.format_name for doc in generated_docs)),
+            "formats_generated": formats_generated,
+            "output_path": output_path,
+            "readme_path": readme_path,
         }
 
     async def analyze_only(
