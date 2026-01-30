@@ -1,0 +1,23 @@
+# DevMind Code Review Command for Gemini CLI
+# Usage: /review <file_path>
+
+[command]
+name = "review"
+description = "Run DevMind Code Reviewer agent on a file"
+
+[command.prompt]
+template = """
+Run the DevMind Code Reviewer agent on the specified file.
+
+Execute this command:
+```bash
+poetry run devmind review {{file}} --format table
+```
+
+After running, summarize the findings and suggest improvements.
+"""
+
+[[command.arguments]]
+name = "file"
+description = "Path to the file to review"
+required = true

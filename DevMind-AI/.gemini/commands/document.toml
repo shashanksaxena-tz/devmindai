@@ -1,0 +1,29 @@
+# DevMind Project Documenter Command for Gemini CLI
+# Usage: /document <project_path> [formats]
+
+[command]
+name = "document"
+description = "Generate AI-ready documentation for a project"
+
+[command.prompt]
+template = """
+Run the DevMind Project Documenter agent to generate documentation.
+
+Execute this command:
+```bash
+poetry run devmind document {{project_path}} -w {{formats}}
+```
+
+After running, show the generated files and explain what each format is used for.
+"""
+
+[[command.arguments]]
+name = "project_path"
+description = "Path to the project to document"
+required = true
+
+[[command.arguments]]
+name = "formats"
+description = "Formats to generate (e.g., --all or -f claude -f gemini)"
+required = false
+default = "--all"

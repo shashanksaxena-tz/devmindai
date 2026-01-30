@@ -164,6 +164,9 @@ def _print_generation_summary(console: Console, result: dict, files_written: boo
             "cursor": "magenta",
             "gemini": "yellow",
             "windsurf": "cyan",
+            "aider": "bright_green",
+            "cline": "bright_blue",
+            "opencode": "bright_magenta",
             "speckit": "red",
             "human": "white",
         }
@@ -235,6 +238,17 @@ def _print_output_tree(console: Console, output_path: str, formats: List[str]) -
         elif fmt == "speckit":
             memory = fmt_branch.add("memory/")
             memory.add("constitution.md")
+        elif fmt == "aider":
+            fmt_branch.add("CONVENTIONS.md")
+            fmt_branch.add(".aider.conf.yml")
+        elif fmt == "cline":
+            clinerules = fmt_branch.add(".clinerules/")
+            clinerules.add("project-overview.md")
+            clinerules.add("development-guidelines.md")
+            clinerules.add("commands-reference.md")
+        elif fmt == "opencode":
+            fmt_branch.add("AGENTS.md")
+            fmt_branch.add(".opencode.json")
         elif fmt == "human":
             fmt_branch.add("README.generated.md")
             fmt_branch.add("ARCHITECTURE.md")
@@ -255,7 +269,7 @@ def document_command(
         None,
         "--format", "-f",
         help="Documentation formats to generate (can specify multiple). "
-             "Options: claude, copilot, cursor, gemini, windsurf, speckit, human",
+             "Options: claude, copilot, cursor, gemini, windsurf, aider, cline, opencode, speckit, human",
     ),
     all_formats: bool = typer.Option(
         False,
@@ -309,8 +323,11 @@ def document_command(
     - claude: CLAUDE.md for Claude Code
     - copilot: .github/copilot-instructions.md for GitHub Copilot
     - cursor: .cursor/rules/*.mdc for Cursor AI
-    - gemini: GEMINI.md for Google Gemini Code Assist
+    - gemini: GEMINI.md/.gemini/ for Gemini CLI
     - windsurf: .windsurf/rules/*.md for Windsurf/Codeium
+    - aider: CONVENTIONS.md and .aider.conf.yml for Aider
+    - cline: .clinerules/*.md for Cline VS Code extension
+    - opencode: AGENTS.md and .opencode.json for OpenCode
 
     \b
     Additional Formats:
@@ -328,17 +345,17 @@ def document_command(
         devmind document ./myproject -w          # Generate to devmind-output/
         devmind document ./myproject -w -p       # Generate directly to project
         devmind document . --all -w              # All formats to devmind-output/
-        devmind document . -f claude -f copilot -w   # Specific formats
+        devmind document . -f claude -f aider -w # Specific formats
         devmind document . --analyze             # Only analyze, no generation
     """
     # Determine formats
     if all_formats:
-        selected_formats = ["claude", "copilot", "cursor", "gemini", "windsurf", "speckit", "human"]
+        selected_formats = ["claude", "copilot", "cursor", "gemini", "windsurf", "aider", "cline", "opencode", "speckit", "human"]
     elif formats:
         selected_formats = list(formats)
     else:
         # Default: AI agent formats only
-        selected_formats = ["claude", "copilot", "cursor", "gemini", "windsurf"]
+        selected_formats = ["claude", "copilot", "cursor", "gemini", "windsurf", "aider", "cline", "opencode"]
 
     # Handle convenience flags
     if include_human and "human" not in selected_formats:

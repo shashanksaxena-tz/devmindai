@@ -8,6 +8,9 @@ from .gemini import GeminiDocGenerator
 from .windsurf import WindsurfDocGenerator
 from .speckit import SpecKitGenerator
 from .human import HumanDocGenerator
+from .aider import AiderDocGenerator
+from .cline import ClineDocGenerator
+from .opencode import OpenCodeDocGenerator
 
 __all__ = [
     "BaseDocGenerator",
@@ -19,4 +22,7 @@ __all__ = [
     "WindsurfDocGenerator",
     "SpecKitGenerator",
     "HumanDocGenerator",
+    "AiderDocGenerator",
+    "ClineDocGenerator",
+    "OpenCodeDocGenerator",
 ]

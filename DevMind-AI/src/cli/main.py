@@ -67,6 +67,10 @@ app.command(name="pr-review")(pr_review_command)
 from src.cli.commands.document import document_command
 app.command(name="document")(document_command)
 
+from src.cli.commands.run_with import run_with_command, list_tools_command
+app.command(name="run-with")(run_with_command)
+app.command(name="tools")(list_tools_command)
+
 @app.callback()
 def main(
     ctx: typer.Context,
