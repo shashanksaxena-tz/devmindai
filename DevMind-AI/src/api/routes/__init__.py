@@ -12,6 +12,7 @@ from src.api.routes.migrations import router as migrations_router
 from src.api.routes.queries import router as queries_router
 from src.api.routes.pipelines import router as pipelines_router
 from src.api.routes.adrs import router as adrs_router
+from src.api.routes.project_docs import router as project_docs_router
 
 api_router = APIRouter()
 
@@ -25,5 +26,6 @@ api_router.include_router(migrations_router, prefix="/migrations", tags=["Migrat
 api_router.include_router(queries_router, prefix="/queries", tags=["Queries"])
 api_router.include_router(pipelines_router, prefix="/pipelines", tags=["Pipelines"])
 api_router.include_router(adrs_router, prefix="/adrs", tags=["ADRs"])
+api_router.include_router(project_docs_router, prefix="/project-docs", tags=["Project Documentation"])
 
 __all__ = ["api_router"]

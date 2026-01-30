@@ -1,13 +1,13 @@
 # DevMind AI - Project Status Handoff
 
-## Current Status (2026-01-22)
+## Current Status (2026-01-30)
 
-The project has reached a significant milestone with **13 out of 13 phases implemented**. The core infrastructure, all agents, the dashboard, and the CLI wrapper are in place.
+The project has reached a significant milestone with **14 agents implemented**. The core infrastructure, all agents, the dashboard, and the CLI wrapper are in place.
 
 **Summary:**
-- **Completed Phases:** 1-13.
+- **Completed Phases:** 1-13 plus new Project Documenter Agent.
 - **Missing Phase:** None.
-- **Test Status:** ~200 tests collected. File naming conflicts (`test_agent.py`) have been resolved. Most tests pass (196 passing), with a few failures likely due to environment/mocking setup.
+- **Test Status:** ~210+ tests collected. Most tests pass with proper environment setup.
 
 ## Implemented Components
 
@@ -20,9 +20,33 @@ The following intelligent agents are implemented:
 *   `doc_generator`: Documentation generation (Phase 6).
 *   `incident_responder`: Incident management and runbooks (Phase 7).
 *   `pipeline_generator`: CI/CD pipeline generation (Phase 11).
+*   `project_documenter`: **NEW** - AI-agent documentation generator for existing codebases.
 *   `query_optimizer`: SQL query optimization (Phase 9).
 *   `test_generator`: Automated test generation (Phase 4).
 *   `vuln_scanner`: Vulnerability scanning (Phase 2).
+
+### Project Documenter Agent (NEW)
+The `project_documenter` agent analyzes existing codebases and generates documentation for multiple AI coding assistants:
+
+**AI Agent Formats:**
+- `claude`: CLAUDE.md for Claude Code
+- `copilot`: .github/copilot-instructions.md for GitHub Copilot
+- `cursor`: .cursor/rules/*.mdc for Cursor AI
+- `gemini`: GEMINI.md for Google Gemini Code Assist
+- `windsurf`: .windsurf/rules/*.md for Windsurf/Codeium
+
+**Governance Formats:**
+- `speckit`: GitHub Spec Kit constitution files (.specify/memory/)
+
+**Human Formats:**
+- `human`: README, ARCHITECTURE, CONTRIBUTING docs
+
+**Components:**
+- `analyzer.py`: Codebase analyzer that extracts structure, languages, frameworks, dependencies
+- `generators/`: Format-specific documentation generators
+  - `claude.py`, `copilot.py`, `cursor.py`, `gemini.py`, `windsurf.py`
+  - `speckit.py`: GitHub Spec Kit constitution generator
+  - `human.py`: Human-readable documentation
 
 ### CLI (`src/cli/`)
 A unified command-line interface `devmind` (Phase 13) allows easy access to agents:
@@ -31,6 +55,7 @@ A unified command-line interface `devmind` (Phase 13) allows easy access to agen
 *   `devmind test`: Test generation.
 *   `devmind pr-review`: GitHub PR review.
 *   `devmind config`: Configuration management.
+*   `devmind document`: **NEW** - Generate AI-agent documentation for projects.
 
 ### API Routes (`src/api/routes/`)
 The following REST API endpoints are available:
@@ -40,6 +65,7 @@ The following REST API endpoints are available:
 *   `/incidents`: Incident response.
 *   `/migrations`: Code migration.
 *   `/pipelines`: Pipeline generation.
+*   `/project-docs`: **NEW** - Project documentation generation for AI agents.
 *   `/queries`: Query optimization.
 *   `/reviews`: Code reviews.
 *   `/security`: Vulnerability scanning.
@@ -100,6 +126,14 @@ devmind test src/utils.py
 
 # Review PR (requires GITHUB_TOKEN)
 devmind pr-review owner/repo 123
+
+# Generate AI-agent documentation (NEW)
+devmind document .                        # Analyze and show docs for all AI formats
+devmind document ./project -w             # Generate and write AI docs to disk
+devmind document . --all -w               # Generate ALL formats including human docs
+devmind document . -f claude -f copilot   # Specific formats only
+devmind document . --speckit -w           # Include GitHub Spec Kit constitution
+devmind document . --analyze              # Only analyze, no generation
 ```
 
 ## Running Tests
