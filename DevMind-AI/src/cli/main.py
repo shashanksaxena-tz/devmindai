@@ -71,6 +71,9 @@ from src.cli.commands.run_with import run_with_command, list_tools_command
 app.command(name="run-with")(run_with_command)
 app.command(name="tools")(list_tools_command)
 
+from src.cli.commands.generate_pr import generate_pr_command
+app.command(name="generate-pr")(generate_pr_command)
+
 @app.callback()
 def main(
     ctx: typer.Context,

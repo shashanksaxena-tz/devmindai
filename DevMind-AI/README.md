@@ -1,19 +1,25 @@
 # DevMind AI - Complete User Guide
 
-A comprehensive AI-powered developer toolkit with 11 intelligent agents for code review, security scanning, testing, documentation, and more.
+A comprehensive AI-powered developer toolkit with 11+ intelligent agents for code review, security scanning, testing, and documentation generation. Works with multiple AI coding assistants including Claude Code, Gemini CLI, GitHub Copilot, Aider, Cline, and OpenCode.
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
 - [Installation](#installation)
 - [Available Agents](#available-agents)
-- [Usage Methods](#usage-methods)
-  - [CLI (Command Line)](#cli-command-line)
-  - [API (REST)](#api-rest)
-  - [Dashboard (Web UI)](#dashboard-web-ui)
-  - [Programmatic (Python)](#programmatic-python)
-- [Agent Guides](#agent-guides)
-- [Working with Repositories](#working-with-repositories)
+- [Using DevMind on External Projects](#using-devmind-on-external-projects)
+  - [Method 1: Direct CLI](#method-1-direct-cli)
+  - [Method 2: Generate PR for GitHub Repo](#method-2-generate-pr-for-github-repo)
+  - [Method 3: Via AI Coding Assistants](#method-3-via-ai-coding-assistants)
+- [AI Coding Assistant Integrations](#ai-coding-assistant-integrations)
+  - [Claude Code](#claude-code)
+  - [Gemini CLI](#gemini-cli)
+  - [GitHub Copilot](#github-copilot)
+  - [Aider](#aider)
+  - [Cline](#cline)
+  - [OpenCode](#opencode)
+- [CLI Reference](#cli-reference)
+- [API Reference](#api-reference)
 - [Examples & Workflows](#examples--workflows)
 - [Troubleshooting](#troubleshooting)
 
@@ -22,33 +28,21 @@ A comprehensive AI-powered developer toolkit with 11 intelligent agents for code
 ## Quick Start
 
 ```bash
-# 1. Clone and setup
+# 1. Clone and setup DevMind
 git clone <repository-url>
 cd devmindai/DevMind-AI
-
-# 2. Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 3. Install
+python -m venv venv && source venv/bin/activate
 pip install -e ".[cli,dev]"
 
-# 4. Set up API keys (create .env file)
-cat > .env << 'EOF'
-ANTHROPIC_API_KEY=your-anthropic-api-key
-GOOGLE_API_KEY=your-google-api-key
-SECRET_KEY=your-secret-key
-APP_ENV=development
-EOF
+# 2. Set up API keys
+export GOOGLE_API_KEY=your-google-api-key  # For Gemini (primary)
+export ANTHROPIC_API_KEY=your-key          # Optional for Claude
 
-# 5. Run your first command - review a file
-devmind review path/to/your/code.py
+# 3. Run on ANY external project
+devmind document /path/to/any/project -w --all
 
-# 6. Or scan a whole project for vulnerabilities
-devmind scan /path/to/your/project
-
-# 7. Generate AI documentation for your project
-devmind document /path/to/your/project -w
+# 4. Or generate a PR for a GitHub repo
+devmind generate-pr owner/repo
 ```
 
 ---
@@ -57,679 +51,532 @@ devmind document /path/to/your/project -w
 
 ### Prerequisites
 
-- Python 3.9 or higher
-- pip
+- Python 3.9+
 - Git
-- API keys for AI providers (Anthropic Claude and/or Google Gemini)
+- API keys (Google Gemini recommended - free tier available)
+- Optional: GitHub CLI (`gh`) for PR generation
 
-### Step-by-Step Setup
+### Full Setup
 
 ```bash
-# Clone the repository
+# Clone DevMind
 git clone <repository-url>
 cd devmindai/DevMind-AI
 
-# Create and activate virtual environment
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install all dependencies
+# Install with all extras
 pip install -e ".[cli,dev]"
 
-# Verify installation
-devmind --version
-```
-
-### Environment Configuration
-
-Create a `.env` file in the `DevMind-AI` directory:
-
-```bash
-# Required - AI Provider API Keys
-ANTHROPIC_API_KEY=sk-ant-your-key-here      # For Claude (complex tasks)
-GOOGLE_API_KEY=your-google-key-here          # For Gemini (simple/fast tasks)
-
-# Required - Application Settings
-SECRET_KEY=generate-a-secure-random-key
-APP_NAME="DevMind AI"
+# Configure environment
+cat > .env << 'EOF'
+GOOGLE_API_KEY=your-google-api-key
+ANTHROPIC_API_KEY=your-anthropic-key  # Optional
+SECRET_KEY=any-random-string
 APP_ENV=development
-DEBUG=True
+EOF
 
-# Optional - Database (for persistent storage)
-DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/devmind
-
-# Optional - Redis (for caching)
-REDIS_URL=redis://localhost:6379/0
-
-# Optional - Qdrant (for vector search in ADR agent)
-QDRANT_URL=http://localhost:6333
-
-# Optional - GitHub (for PR reviews)
-GITHUB_TOKEN=ghp_your-github-token
+# Verify installation
+devmind --help
 ```
 
 ---
 
 ## Available Agents
 
-| Agent | What It Does | CLI Command |
-|-------|--------------|-------------|
-| **Code Reviewer** | Reviews code for quality, security, performance, style | `devmind review` |
-| **Vulnerability Scanner** | Scans for security vulnerabilities (OWASP Top 10) | `devmind scan` |
-| **Test Generator** | Generates unit tests for your code | `devmind test` |
-| **Project Documenter** | Creates AI-ready docs (Claude, Copilot, Cursor, etc.) | `devmind document` |
-| **Doc Generator** | Generates docstrings and API documentation | API only |
-| **Debt Analyzer** | Analyzes technical debt and suggests improvements | API only |
-| **Incident Responder** | Helps triage and respond to production incidents | API only |
-| **Code Migrator** | Assists with code migration between frameworks/versions | API only |
-| **Query Optimizer** | Optimizes SQL queries for performance | API only |
-| **Pipeline Generator** | Generates CI/CD pipeline configurations | API only |
-| **ADR Recorder** | Records Architecture Decision Records | API only |
+| Agent | CLI Command | Description |
+|-------|-------------|-------------|
+| **Code Reviewer** | `devmind review` | AI code review for quality, security, performance |
+| **Security Scanner** | `devmind scan` | OWASP Top 10, secrets detection, dependency scan |
+| **Test Generator** | `devmind test` | Generate unit tests with edge cases |
+| **Project Documenter** | `devmind document` | Generate AI-ready docs for 10+ formats |
+| **PR Generator** | `devmind generate-pr` | Clone repo, generate docs, create PR |
+| **PR Reviewer** | `devmind pr-review` | Review GitHub pull requests |
+| **Run With** | `devmind run-with` | Execute via AI coding assistants |
 
 ---
 
-## Usage Methods
+## Using DevMind on External Projects
 
-### CLI (Command Line)
+### Method 1: Direct CLI
 
-The easiest way to use DevMind AI. All commands follow the pattern:
-
-```bash
-devmind <command> [arguments] [options]
-```
-
-#### Available CLI Commands
+Run DevMind directly on any local project to analyze **all files, folders, and services**:
 
 ```bash
-# Show all available commands
-devmind --help
+# Navigate to ANY project (not DevMind)
+cd /path/to/your/external/project
 
-# Initialize configuration
-devmind config init
-
-# Show current configuration
-devmind config show
-```
-
----
-
-### API (REST)
-
-Start the API server for programmatic access:
-
-```bash
-# Start the server
-cd DevMind-AI
-uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
-
-# Server runs at http://localhost:8000
-# API docs at http://localhost:8000/docs (Swagger UI)
-# Alternative docs at http://localhost:8000/redoc
-```
-
-#### API Endpoints Overview
-
-| Endpoint | Agent | Methods |
-|----------|-------|---------|
-| `/api/reviews` | Code Reviewer | POST |
-| `/api/security` | Vulnerability Scanner | POST |
-| `/api/tests` | Test Generator | POST |
-| `/api/project-docs` | Project Documenter | GET, POST |
-| `/api/docs` | Doc Generator | POST |
-| `/api/debt` | Debt Analyzer | POST |
-| `/api/incidents` | Incident Responder | POST |
-| `/api/migrations` | Code Migrator | POST |
-| `/api/queries` | Query Optimizer | POST |
-| `/api/pipelines` | Pipeline Generator | POST |
-| `/api/adrs` | ADR Recorder | GET, POST |
-
----
-
-### Dashboard (Web UI)
-
-A Streamlit-based web dashboard for visual interaction:
-
-```bash
-# Start the dashboard
-cd DevMind-AI/dashboard
-streamlit run app.py
-
-# Opens at http://localhost:8501
-```
-
-The dashboard provides pages for:
-- **Security** - Visual vulnerability scanning
-- **Reviews** - Code review interface
-- **Tests** - Test generation UI
-- **Debt** - Technical debt analysis
-
----
-
-### Programmatic (Python)
-
-Use agents directly in your Python code:
-
-```python
-import asyncio
-from src.agents.base import AgentContext
-
-# Import the agent you need
-from src.agents.code_reviewer import CodeReviewerAgent
-from src.agents.vuln_scanner import VulnScannerAgent
-from src.agents.test_generator import TestGeneratorAgent
-from src.agents.project_documenter import ProjectDocumenterAgent
-
-async def main():
-    context = AgentContext()
-
-    # Example: Code review
-    reviewer = CodeReviewerAgent()
-    result = await reviewer.execute(
-        context,
-        code="def foo(): pass",
-        file_path="example.py"
-    )
-    print(result)
-
-asyncio.run(main())
-```
-
----
-
-## Agent Guides
-
-### 1. Code Reviewer Agent
-
-**What it does:** Analyzes code for quality issues, security vulnerabilities, performance problems, style violations, and missing tests.
-
-**CLI Usage:**
-```bash
-# Review a single file
-devmind review src/main.py
-
-# Review a directory
-devmind review src/
-
-# Review with specific focus
-devmind review src/api/ --focus security
-
-# Set failure threshold
-devmind review src/ --fail-on blocker
-
-# Output as JSON
-devmind review src/main.py --format json
-```
-
-**API Usage:**
-```bash
-curl -X POST http://localhost:8000/api/reviews/code \
-  -H "Content-Type: application/json" \
-  -d '{
-    "code": "def hello():\n    print(\"world\")",
-    "file_path": "hello.py",
-    "language": "python"
-  }'
-```
-
-**What you get:**
-- Security issues (injection, XSS, etc.)
-- Performance problems
-- Code correctness issues
-- Style violations
-- Testing gaps
-- Suggestions for improvement
-
----
-
-### 2. Vulnerability Scanner Agent
-
-**What it does:** Scans code for security vulnerabilities including OWASP Top 10, hardcoded secrets, insecure dependencies.
-
-**CLI Usage:**
-```bash
-# Scan current directory
-devmind scan .
-
-# Scan a specific project
-devmind scan /path/to/project
-
-# Scan with severity threshold
-devmind scan . --fail-on high
-
-# Output as JSON
-devmind scan . --format json
-```
-
-**API Usage:**
-```bash
-curl -X POST http://localhost:8000/api/security/scan \
-  -H "Content-Type: application/json" \
-  -d '{
-    "code": "password = \"secret123\"",
-    "file_path": "config.py"
-  }'
-```
-
-**What you get:**
-- Vulnerability type and severity (critical/high/medium/low)
-- Affected line numbers
-- Description of the issue
-- Remediation recommendations
-
----
-
-### 3. Test Generator Agent
-
-**What it does:** Automatically generates unit tests for your code with proper mocking and edge case coverage.
-
-**CLI Usage:**
-```bash
-# Generate tests for a file
-devmind test src/utils.py
-
-# Generate tests for a specific function
-devmind test src/utils.py --function calculate_total
-
-# Specify test framework
-devmind test src/utils.py --framework pytest
-
-# Output to file
-devmind test src/utils.py --output tests/test_utils.py
-```
-
-**API Usage:**
-```bash
-curl -X POST http://localhost:8000/api/tests/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "code": "def add(a, b): return a + b",
-    "file_path": "math_utils.py",
-    "framework": "pytest"
-  }'
-```
-
-**What you get:**
-- Complete test file with imports
-- Test cases for happy paths
-- Edge case tests
-- Error handling tests
-- Mocked dependencies
-
----
-
-### 4. Project Documenter Agent (NEW)
-
-**What it does:** Analyzes your entire codebase and generates documentation optimized for AI coding assistants (Claude, Copilot, Cursor, Gemini, Windsurf) and humans.
-
-**CLI Usage:**
-```bash
-# Analyze a project (no files written)
-devmind document /path/to/project
-
-# Generate and write AI documentation
-devmind document /path/to/project -w
-
-# Generate all formats (AI + human + governance)
-devmind document /path/to/project --all -w
-
-# Generate specific formats only
-devmind document . -f claude -f copilot -w
-
-# Only analyze (see what the agent detects)
+# Option A: Analyze entire project structure
 devmind document . --analyze
 
-# Include GitHub Spec Kit constitution
-devmind document . --speckit -w
+# Option B: Generate AI docs for the WHOLE project
+devmind document . -w --all
 
-# Include human-readable docs
-devmind document . --human -w
+# Option C: Generate specific formats
+devmind document . -w -f claude -f copilot -f gemini
 
-# JSON output for scripting
-devmind document . --output-format json
+# Option D: Run security scan on entire codebase
+devmind scan . --fail-on high
+
+# Option E: Review all Python files
+devmind review src/
 ```
 
-**API Usage:**
+**What happens:**
+1. DevMind analyzes your **entire codebase** (all files, directories, services)
+2. Detects languages, frameworks, architecture patterns
+3. Extracts build/test/lint commands
+4. Generates documentation optimized for each AI assistant
+5. Writes files to `devmind-output/` (organized) or directly to project (`-p`)
+
+**Output structure:**
+```
+devmind-output/
+└── project-documenter/
+    └── your-project-20240130-123456/
+        ├── README.md           # Usage guide
+        ├── claude/CLAUDE.md
+        ├── copilot/copilot-instructions.md
+        ├── cursor/rules/*.mdc
+        ├── gemini/GEMINI.md
+        ├── windsurf/rules/*.md
+        ├── aider/CONVENTIONS.md
+        ├── cline/.clinerules/*.md
+        └── opencode/AGENTS.md
+```
+
+### Method 2: Generate PR for GitHub Repo
+
+Automatically generate documentation for any GitHub repository and create a pull request:
+
+```bash
+# Prerequisites: Install and authenticate GitHub CLI
+# brew install gh && gh auth login
+
+# Generate docs and create PR for any public repo
+devmind generate-pr facebook/react
+
+# With custom options
+devmind generate-pr owner/repo \
+  --branch feature/ai-docs \
+  --title "feat: Add AI coding assistant documentation" \
+  --all
+
+# Specific formats only
+devmind generate-pr owner/repo -f claude -f copilot -f gemini
+
+# Dry run to preview
+devmind generate-pr owner/repo --dry-run
+```
+
+**What happens:**
+1. Clones the repository to a temp directory
+2. Analyzes the entire codebase
+3. Generates documentation for all AI formats
+4. Creates a new branch, commits changes
+5. Pushes and creates a PR via GitHub CLI
+
+### Method 3: Via AI Coding Assistants
+
+Use your preferred AI coding assistant to run DevMind agents:
+
+```bash
+# List available AI tools and their status
+devmind tools
+
+# Run DevMind agent via specific AI tool
+devmind run-with gemini review src/main.py
+devmind run-with aider test src/utils.py
+devmind run-with claude document /path/to/project
+devmind run-with copilot scan .
+
+# Dry run to see command
+devmind run-with opencode document . --dry-run
+```
+
+---
+
+## AI Coding Assistant Integrations
+
+DevMind generates documentation for **10 different AI coding assistant formats** and can be used **through** these assistants.
+
+### Claude Code
+
+**Generated files:** `CLAUDE.md`
+
+**Setup for your external project:**
+```bash
+# Generate Claude Code docs for your project
+cd /path/to/your/project
+devmind document . -w -f claude -p
+
+# Now use Claude Code in your project
+claude
+```
+
+**Using Claude Code to run DevMind:**
+```bash
+# In Claude Code session:
+# "Run devmind document on this project and write to devmind-output"
+poetry run devmind document . -w
+```
+
+### Gemini CLI
+
+**Generated files:** `.gemini/GEMINI.md`, `.gemini/commands/*.toml`
+
+**Setup for your external project:**
+```bash
+# Install Gemini CLI
+npm install -g @anthropic-ai/gemini-cli
+
+# Generate Gemini docs for your project
+cd /path/to/your/project
+devmind document . -w -f gemini -p
+
+# Custom commands are created in .gemini/commands/
+# Use them with: /review, /scan, /test, /document
+```
+
+**Using Gemini CLI with DevMind:**
+```bash
+# Start Gemini CLI in your project
+gemini
+
+# Use custom commands (if generated with -p flag)
+/review src/main.py
+/scan .
+/document . -w
+
+# Or ask directly
+"Run poetry run devmind scan . and summarize the results"
+```
+
+### GitHub Copilot
+
+**Generated files:** `.github/copilot-instructions.md`
+
+**Setup for your external project:**
+```bash
+# Generate Copilot instructions
+cd /path/to/your/project
+devmind document . -w -f copilot -p
+
+# The file will be at .github/copilot-instructions.md
+# Copilot in VS Code/JetBrains will automatically read this
+```
+
+**Using GitHub Copilot CLI:**
+```bash
+# Install Copilot CLI extension
+gh extension install github/gh-copilot
+
+# Use Copilot to explain/suggest
+gh copilot explain "devmind document . -w --all"
+gh copilot suggest "scan this project for security vulnerabilities"
+```
+
+### Aider
+
+**Generated files:** `CONVENTIONS.md`, `.aider.conf.yml`
+
+**Setup for your external project:**
+```bash
+# Install Aider
+pip install aider-chat
+
+# Generate Aider config for your project
+cd /path/to/your/project
+devmind document . -w -f aider -p
+
+# Start Aider with the generated config
+aider --config .aider.conf.yml
+```
+
+**Using Aider with DevMind:**
+```bash
+# Aider automatically reads CONVENTIONS.md
+aider
+
+# In Aider session:
+# "Run the DevMind security scanner on this project"
+# "Generate tests for src/utils.py using DevMind"
+```
+
+### Cline
+
+**Generated files:** `.clinerules/*.md`
+
+**Setup for your external project:**
+```bash
+# Generate Cline rules
+cd /path/to/your/project
+devmind document . -w -f cline -p
+
+# Files created:
+# .clinerules/project-overview.md
+# .clinerules/development-guidelines.md
+# .clinerules/commands-reference.md
+```
+
+**Using Cline in VS Code:**
+1. Install Cline extension in VS Code
+2. Open your project (with generated `.clinerules/`)
+3. Cline automatically reads the rules
+4. Ask: "Run DevMind code review on this file"
+
+### OpenCode
+
+**Generated files:** `AGENTS.md`, `.opencode.json`
+
+**Setup for your external project:**
+```bash
+# Install OpenCode
+npm install -g opencode-ai
+
+# Generate OpenCode config
+cd /path/to/your/project
+devmind document . -w -f opencode -p
+
+# Start OpenCode
+opencode
+```
+
+**Using OpenCode with DevMind:**
+```bash
+# OpenCode reads AGENTS.md for workflow instructions
+opencode
+
+# In session:
+# "Run devmind scan to check for vulnerabilities"
+# "Generate documentation using devmind document"
+```
+
+---
+
+## CLI Reference
+
+### Core Commands
+
+```bash
+# Documentation Generation
+devmind document <path> [options]
+  -w, --write              Write to devmind-output/
+  -p, --to-project         Write directly to project
+  -f, --format <format>    Specific format (multiple allowed)
+  --all                    All formats including human docs
+  --analyze                Only analyze, don't generate
+  --human                  Include human-readable docs
+  --speckit                Include GitHub Spec Kit
+
+# Security Scanning
+devmind scan <path> [options]
+  --fail-on <level>        Fail on severity: critical/high/medium/low
+  --format <format>        Output: text/json
+
+# Code Review
+devmind review <path> [options]
+  --focus <area>           Focus: security/performance/style
+  --fail-on <level>        Fail on: blocker/warning/suggestion
+  --format <format>        Output: table/json
+
+# Test Generation
+devmind test <file> [options]
+  --framework <name>       Framework: pytest/unittest/jest
+  --output <path>          Output file path
+
+# GitHub PR Generation
+devmind generate-pr <repo> [options]
+  -f, --format <format>    Documentation formats
+  -b, --branch <name>      Branch name
+  -t, --title <title>      PR title
+  --all                    All formats
+  --dry-run                Preview only
+
+# AI Tool Integration
+devmind run-with <tool> <agent> <target>
+  Tools: gemini, claude, aider, opencode, copilot
+  Agents: review, scan, test, document
+
+devmind tools              List AI tools and status
+```
+
+### Format Options
+
+| Format | Output | Description |
+|--------|--------|-------------|
+| `claude` | `CLAUDE.md` | Claude Code context |
+| `copilot` | `.github/copilot-instructions.md` | GitHub Copilot |
+| `cursor` | `.cursor/rules/*.mdc` | Cursor AI rules |
+| `gemini` | `.gemini/GEMINI.md` + commands | Gemini CLI |
+| `windsurf` | `.windsurf/rules/*.md` | Windsurf/Codeium |
+| `aider` | `CONVENTIONS.md`, `.aider.conf.yml` | Aider |
+| `cline` | `.clinerules/*.md` | Cline VS Code |
+| `opencode` | `AGENTS.md`, `.opencode.json` | OpenCode |
+| `speckit` | `.specify/memory/constitution.md` | GitHub Spec Kit |
+| `human` | `docs/README.md`, `ARCHITECTURE.md` | Human docs |
+
+---
+
+## API Reference
+
+### Starting the API Server
+
+```bash
+cd DevMind-AI
+uvicorn src.api.main:app --reload --port 8000
+
+# Docs at http://localhost:8000/docs
+```
+
+### Key Endpoints
+
+```bash
+# Project Documentation
+POST /api/v1/project-docs/analyze
+POST /api/v1/project-docs/generate
+GET  /api/v1/project-docs/formats
+
+# Code Review
+POST /api/v1/reviews/code
+
+# Security Scan
+POST /api/v1/security/scan
+
+# Test Generation
+POST /api/v1/tests/generate
+```
+
+### Example API Calls
+
 ```bash
 # Analyze a project
-curl -X POST http://localhost:8000/api/project-docs/analyze \
+curl -X POST http://localhost:8000/api/v1/project-docs/analyze \
   -H "Content-Type: application/json" \
   -d '{"path": "/path/to/project"}'
 
 # Generate documentation
-curl -X POST http://localhost:8000/api/project-docs/generate \
+curl -X POST http://localhost:8000/api/v1/project-docs/generate \
   -H "Content-Type: application/json" \
   -d '{
     "path": "/path/to/project",
-    "formats": ["claude", "copilot", "cursor"],
+    "formats": ["claude", "copilot", "gemini"],
     "write_files": true
   }'
-
-# List available formats
-curl http://localhost:8000/api/project-docs/formats
-```
-
-**Available Formats:**
-
-| Format | Output Files | For |
-|--------|--------------|-----|
-| `claude` | `CLAUDE.md` | Claude Code |
-| `copilot` | `.github/copilot-instructions.md` | GitHub Copilot |
-| `cursor` | `.cursor/rules/*.mdc` | Cursor AI |
-| `gemini` | `GEMINI.md` | Google Gemini |
-| `windsurf` | `.windsurf/rules/*.md` | Windsurf/Codeium |
-| `speckit` | `.specify/memory/constitution.md` | GitHub Spec Kit |
-| `human` | `docs/README.md`, `docs/ARCHITECTURE.md`, `docs/CONTRIBUTING.md` | Humans |
-
-**What you get:**
-- Project context and structure
-- Tech stack and frameworks
-- Build/test/lint commands
-- Coding conventions
-- Architecture patterns
-- Governance rules (for Spec Kit)
-
----
-
-### 5. PR Review (GitHub Integration)
-
-**What it does:** Reviews GitHub Pull Requests and posts comments directly.
-
-**CLI Usage:**
-```bash
-# Review a PR (requires GITHUB_TOKEN in .env)
-devmind pr-review owner/repo 123
-
-# Example
-devmind pr-review facebook/react 12345
-```
-
-**What you get:**
-- Inline comments on specific lines
-- Summary of issues found
-- Approval/changes requested
-
----
-
-## Working with Repositories
-
-### Scanning Your Own Project
-
-```bash
-# Navigate to your project
-cd /path/to/your/project
-
-# Run security scan
-devmind scan .
-
-# Run code review on specific files
-devmind review src/
-
-# Generate tests for your utilities
-devmind test src/utils/
-
-# Generate AI documentation
-devmind document . -w
-```
-
-### Scanning a GitHub Repository
-
-```bash
-# Clone the repo first
-git clone https://github.com/owner/repo.git
-cd repo
-
-# Now run any agent
-devmind scan .
-devmind review src/
-devmind document . -w
-```
-
-### Scanning Specific Files
-
-```bash
-# Single file
-devmind review src/api/auth.py
-devmind test src/models/user.py
-
-# Multiple files (run multiple commands)
-devmind review src/api/auth.py
-devmind review src/api/users.py
-
-# Or review a directory
-devmind review src/api/
 ```
 
 ---
 
 ## Examples & Workflows
 
-### Workflow 1: New Project Security Audit
-
-```bash
-# 1. Clone the project
-git clone https://github.com/example/webapp.git
-cd webapp
-
-# 2. Run vulnerability scan
-devmind scan . --fail-on high
-
-# 3. Review critical files
-devmind review src/auth/ --focus security
-devmind review src/api/ --focus security
-
-# 4. Generate report (JSON)
-devmind scan . --format json > security-report.json
-```
-
-### Workflow 2: Pre-Commit Code Review
-
-```bash
-# Review staged changes before committing
-git diff --cached --name-only | while read file; do
-  if [[ "$file" == *.py ]]; then
-    devmind review "$file"
-  fi
-done
-```
-
-### Workflow 3: Generate Tests for New Feature
-
-```bash
-# 1. Write your feature code
-# src/features/payment.py
-
-# 2. Generate tests
-devmind test src/features/payment.py --output tests/test_payment.py
-
-# 3. Run the generated tests
-pytest tests/test_payment.py -v
-```
-
-### Workflow 4: Onboard AI Assistant to Your Project
+### Workflow 1: Onboard AI to New Project
 
 ```bash
 # 1. Navigate to your project
 cd /path/to/your/project
 
-# 2. Generate AI documentation for all assistants
-devmind document . --all -w
+# 2. Generate all AI documentation
+devmind document . --all -w -p
 
-# 3. Check what was created
-ls -la CLAUDE.md GEMINI.md
-ls -la .github/copilot-instructions.md
-ls -la .cursor/rules/
-ls -la .windsurf/rules/
-ls -la .specify/memory/
+# 3. Commit the generated files
+git add CLAUDE.md GEMINI.md AGENTS.md CONVENTIONS.md \
+        .github/ .gemini/ .cursor/ .windsurf/ .clinerules/ \
+        .opencode.json .aider.conf.yml
+git commit -m "Add AI coding assistant documentation"
+git push
 
-# 4. Commit the documentation
-git add CLAUDE.md GEMINI.md .github/ .cursor/ .windsurf/ .specify/
-git commit -m "Add AI assistant documentation"
+# Now all AI assistants have context about your project!
+```
 
-# Now Claude Code, Copilot, Cursor, Gemini, and Windsurf
-# will have context about your project!
+### Workflow 2: PR for Open Source Project
+
+```bash
+# Fork the repo on GitHub first, then:
+devmind generate-pr your-username/forked-repo \
+  --branch add-ai-docs \
+  --title "docs: Add AI coding assistant documentation" \
+  --all
+
+# The PR is created automatically!
+```
+
+### Workflow 3: Security Audit via Gemini CLI
+
+```bash
+# 1. Start Gemini CLI in your project
+cd /path/to/project
+gemini
+
+# 2. In Gemini, ask:
+"Run a comprehensive security scan using DevMind:
+poetry run devmind scan . --fail-on high
+
+Then analyze the results and suggest fixes."
+```
+
+### Workflow 4: Generate Tests via Aider
+
+```bash
+# 1. Start Aider
+cd /path/to/project
+aider --config .aider.conf.yml
+
+# 2. In Aider:
+"Generate unit tests for src/services/auth.py using DevMind:
+poetry run devmind test src/services/auth.py --output tests/test_auth.py"
 ```
 
 ### Workflow 5: Full Project Analysis
 
 ```bash
-# 1. Security scan
-echo "=== Security Scan ==="
-devmind scan .
+#!/bin/bash
+# full-analysis.sh
 
-# 2. Code review
-echo "=== Code Review ==="
-devmind review src/
+PROJECT_PATH=${1:-.}
 
-# 3. Generate missing tests
-echo "=== Test Generation ==="
-devmind test src/core/
+echo "=== DevMind Full Project Analysis ==="
 
-# 4. Generate documentation
-echo "=== Documentation ==="
-devmind document . --all -w
+echo "\n1. Security Scan..."
+devmind scan "$PROJECT_PATH" --format json > security-report.json
+
+echo "\n2. Code Review..."
+devmind review "$PROJECT_PATH" --format json > review-report.json
+
+echo "\n3. Generate AI Documentation..."
+devmind document "$PROJECT_PATH" -w --all
+
+echo "\n=== Analysis Complete ==="
+echo "Reports: security-report.json, review-report.json"
+echo "Documentation: devmind-output/"
 ```
 
-### Workflow 6: Using the API Server
+### Workflow 6: Using with Multiple AI Assistants
 
 ```bash
-# Terminal 1: Start the API server
-cd DevMind-AI
-uvicorn src.api.main:app --reload
+# Generate docs for all AI assistants
+devmind document /path/to/project -w --all -p
 
-# Terminal 2: Make API calls
-# Scan for vulnerabilities
-curl -X POST http://localhost:8000/api/security/scan \
-  -H "Content-Type: application/json" \
-  -d '{"code": "import os; os.system(user_input)", "file_path": "danger.py"}'
+# Now you can use ANY of these:
 
-# Generate tests
-curl -X POST http://localhost:8000/api/tests/generate \
-  -H "Content-Type: application/json" \
-  -d '{"code": "def greet(name): return f\"Hello {name}\"", "file_path": "greet.py"}'
-```
+# Claude Code
+claude  # Reads CLAUDE.md
 
-### Workflow 7: Using the Dashboard
+# Gemini CLI
+gemini  # Reads .gemini/GEMINI.md, uses /commands
 
-```bash
-# Start the dashboard
-cd DevMind-AI/dashboard
-streamlit run app.py
+# Aider
+aider --config .aider.conf.yml  # Reads CONVENTIONS.md
 
-# Open http://localhost:8501 in your browser
-# Use the sidebar to navigate between:
-# - Security (vulnerability scanning)
-# - Reviews (code review)
-# - Tests (test generation)
-# - Debt (technical debt analysis)
-```
+# OpenCode
+opencode  # Reads AGENTS.md
 
----
+# Cline in VS Code
+# Just open project, Cline reads .clinerules/
 
-## Understanding Agent Output
-
-### Code Review Output
-
-```
-╭─────────────────────────────────────────╮
-│           Code Review Results           │
-╰─────────────────────────────────────────╯
-
-File: src/api/auth.py
-
-🔴 BLOCKER (Security)
-   Line 45: SQL Injection vulnerability
-   Suggestion: Use parameterized queries
-
-⚠️  WARNING (Performance)
-   Line 23: N+1 query detected in loop
-   Suggestion: Use batch fetching
-
-💡 SUGGESTION (Style)
-   Line 12: Function too long (85 lines)
-   Suggestion: Break into smaller functions
-
-Summary: 1 blocker, 1 warning, 1 suggestion
-```
-
-### Vulnerability Scan Output
-
-```
-╭─────────────────────────────────────────╮
-│         Security Scan Results           │
-╰─────────────────────────────────────────╯
-
-🔴 CRITICAL: Hardcoded credentials
-   File: config.py:15
-   Code: password = "admin123"
-   Fix: Use environment variables
-
-🟠 HIGH: SQL Injection
-   File: db/queries.py:42
-   Code: query = f"SELECT * FROM users WHERE id={user_id}"
-   Fix: Use parameterized queries
-
-🟡 MEDIUM: Missing HTTPS
-   File: api/client.py:8
-   Code: requests.get("http://api.example.com")
-   Fix: Use HTTPS for all external requests
-
-Summary: 1 critical, 1 high, 1 medium
-```
-
-### Project Documenter Output
-
-```
-╭─────────────────────────────────────────╮
-│    Documentation Generated: myproject   │
-╰─────────────────────────────────────────╯
-
-Language: Python
-Frameworks: FastAPI, SQLAlchemy
-
-Generated Documentation:
-┌────────┬──────────────────────────────────────┬─────────────────────┐
-│ Format │ File Path                            │ Description         │
-├────────┼──────────────────────────────────────┼─────────────────────┤
-│ claude │ CLAUDE.md                            │ Claude Code context │
-│ copilot│ .github/copilot-instructions.md      │ Copilot instructions│
-│ cursor │ .cursor/rules/index.mdc              │ Main Cursor rules   │
-│ cursor │ .cursor/rules/python.mdc             │ Python rules        │
-│ gemini │ GEMINI.md                            │ Gemini context      │
-└────────┴──────────────────────────────────────┴─────────────────────┘
-
-Formats generated: claude, copilot, cursor, gemini, windsurf
-Total files: 8
-
-✓ Files written to disk (8 files)
-```
-
----
-
-## Project Structure
-
-```
-DevMind-AI/
-├── src/
-│   ├── agents/           # AI agent implementations
-│   │   ├── adr_recorder/
-│   │   ├── code_migrator/
-│   │   ├── code_reviewer/
-│   │   ├── debt_analyzer/
-│   │   ├── doc_generator/
-│   │   ├── incident_responder/
-│   │   ├── pipeline_generator/
-│   │   ├── project_documenter/   # NEW - Multi-format doc generator
-│   │   ├── query_optimizer/
-│   │   ├── test_generator/
-│   │   └── vuln_scanner/
-│   ├── api/              # FastAPI routes
-│   ├── cli/              # CLI commands (devmind)
-│   ├── core/             # Core logic, LLM routing
-│   ├── db/               # Database models
-│   └── integrations/     # External integrations
-├── tests/                # Test suite
-├── dashboard/            # Streamlit web UI
-└── docs/                 # Documentation
+# GitHub Copilot
+# Reads .github/copilot-instructions.md automatically
 ```
 
 ---
@@ -739,100 +586,59 @@ DevMind-AI/
 ### "Command not found: devmind"
 
 ```bash
-# Make sure you installed with CLI extras
 pip install -e ".[cli,dev]"
-
 # Or add to PATH
 export PATH=$PATH:$(python -c "import site; print(site.USER_BASE)")/bin
-```
-
-### "ModuleNotFoundError"
-
-```bash
-# Set PYTHONPATH
-export PYTHONPATH=$PYTHONPATH:$(pwd)
-
-# Or install in development mode
-pip install -e ".[cli,dev]"
 ```
 
 ### "API key not found"
 
 ```bash
-# Create .env file or export variables
-export ANTHROPIC_API_KEY=your-key
 export GOOGLE_API_KEY=your-key
-
 # Or create .env file
-echo "ANTHROPIC_API_KEY=your-key" >> .env
 echo "GOOGLE_API_KEY=your-key" >> .env
 ```
 
-### "Pydantic validation error"
+### "gh: command not found" (for generate-pr)
 
 ```bash
-# Ensure all required env vars are set
-export SECRET_KEY=any-random-string
-export APP_ENV=development
+# Install GitHub CLI
+# macOS
+brew install gh
+
+# Linux
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+sudo apt update && sudo apt install gh
+
+# Authenticate
+gh auth login
 ```
 
-### Tests failing
+### "Permission denied" when creating PR
 
 ```bash
-# Set up test environment
-export PYTHONPATH=$PYTHONPATH:$(pwd)
-export ANTHROPIC_API_KEY=dummy
-export GOOGLE_API_KEY=dummy
-export SECRET_KEY=dummy
-
-# Clear cache
-find . -type d -name __pycache__ -exec rm -rf {} +
-
-# Run tests
-pytest tests/ -v
-```
-
-### Dashboard not starting
-
-```bash
-# Install streamlit
-pip install streamlit
-
-# Run from correct directory
-cd DevMind-AI/dashboard
-streamlit run app.py
+# Make sure you have write access to the repo
+# Or fork it first:
+gh repo fork owner/repo
+devmind generate-pr your-username/repo
 ```
 
 ---
 
-## Getting Help
-
-```bash
-# Show all commands
-devmind --help
-
-# Show help for specific command
-devmind review --help
-devmind scan --help
-devmind document --help
-
-# Show version
-devmind --version
-```
-
----
-
-## Summary: What to Run and When
+## Summary: Quick Command Reference
 
 | Task | Command |
 |------|---------|
-| Review code quality | `devmind review <file-or-dir>` |
-| Find security issues | `devmind scan <dir>` |
-| Generate tests | `devmind test <file>` |
-| Review GitHub PR | `devmind pr-review owner/repo 123` |
-| Generate AI docs | `devmind document <dir> -w` |
-| Start API server | `uvicorn src.api.main:app --reload` |
-| Start web dashboard | `streamlit run dashboard/app.py` |
+| Analyze any project | `devmind document /path -w` |
+| Generate all AI docs | `devmind document . --all -w -p` |
+| Create PR for GitHub repo | `devmind generate-pr owner/repo` |
+| Security scan | `devmind scan . --fail-on high` |
+| Code review | `devmind review src/` |
+| Generate tests | `devmind test src/file.py` |
+| Use via Gemini CLI | `devmind run-with gemini review file.py` |
+| Use via Aider | `devmind run-with aider test file.py` |
+| List AI tools | `devmind tools` |
 
 ---
 
