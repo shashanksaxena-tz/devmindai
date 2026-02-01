@@ -1,0 +1,154 @@
+# Claude Integration
+
+Anthropic's Claude handles complex reasoning tasks requiring deep analysis.
+
+## Why Claude?
+
+- **Superior reasoning** - Better at nuanced security analysis
+- **Context handling** - Understands complex code relationships
+- **Accuracy** - More precise for correctness checking
+- **Safe defaults** - Built-in guardrails
+
+## When Claude is Used
+
+| Task | Why Claude? |
+|------|-------------|
+| Security review | Understands attack vectors, context-dependent vulnerabilities |
+| Correctness review | Catches subtle logic bugs |
+| Exploitability analysis | Assesses real-world threat potential |
+| Test strategy | Plans comprehensive test coverage |
+| Review synthesis | Combines multiple reviewer outputs intelligently |
+
+## Setup
+
+### 1. Get API Key
+
+1. Go to [Anthropic Console](https://console.anthropic.com)
+2. Create account (requires credit card)
+3. Generate API key
+
+### 2. Configure
+
+```bash
+# Environment variable
+export ANTHROPIC_API_KEY=sk-ant-your-key
+
+# Or in .env file
+echo "ANTHROPIC_API_KEY=sk-ant-your-key" >> .env
+```
+
+### 3. Verify
+
+```bash
+# Run a command that uses Claude
+devmind review src/auth.py --focus security
+```
+
+## Pricing
+
+| Model | Input | Output |
+|-------|-------|--------|
+| claude-sonnet-4 | $3/M tokens | $15/M tokens |
+| claude-3-haiku | $0.25/M tokens | $1.25/M tokens |
+
+DevMind uses `claude-sonnet-4` by default for best quality.
+
+## Model Used
+
+Default: `claude-sonnet-4-20250514`
+- Best balance of quality and cost
+- Strong coding capabilities
+- Good for complex analysis
+
+## Cost Optimization
+
+### 1. Use Gemini for Simple Tasks
+
+DevMind automatically routes simple tasks to Gemini when available.
+
+```bash
+# Set both keys - simple tasks go to Gemini
+export GOOGLE_API_KEY=your-gemini-key
+export ANTHROPIC_API_KEY=your-claude-key
+```
+
+### 2. Limit Scope
+
+```bash
+# Review specific files, not entire directories
+devmind review src/auth.py  # Better than: devmind review src/
+
+# Use --focus to limit analysis
+devmind review src/ --focus security  # Only security review
+```
+
+### 3. Skip Expensive Operations
+
+```bash
+# Analyze without generation first
+devmind document . --analyze
+
+# Generate only needed formats
+devmind document . -w -f claude
+```
+
+## Configuration Options
+
+In `.devmind.yaml`:
+
+```yaml
+llm:
+  claude:
+    model: claude-sonnet-4-20250514
+    temperature: 0.1
+    max_tokens: 4096
+```
+
+## Typical Usage Costs
+
+| Operation | Approximate Cost |
+|-----------|------------------|
+| Single file review | $0.01 - $0.05 |
+| PR review (10 files) | $0.10 - $0.50 |
+| Security scan | $0.05 - $0.20 |
+| Full documentation | $0.05 - $0.15 |
+
+Costs vary based on file size and complexity.
+
+## Rate Limits
+
+| Tier | Requests/min | Tokens/min |
+|------|--------------|------------|
+| Free | 5 | 20,000 |
+| Build | 50 | 80,000 |
+| Scale | 1,000+ | Custom |
+
+## Troubleshooting
+
+**"Invalid API key"**
+- Key format: `sk-ant-api03-...`
+- Check for extra spaces
+
+**"Rate limit exceeded"**
+- Wait and retry
+- Consider upgrading tier
+
+**"Model not found"**
+- Update DevMind to latest version
+
+**"Insufficient credits"**
+- Add payment method at console.anthropic.com
+
+## Claude-Only Setup
+
+If you only want to use Claude (no Gemini):
+
+```bash
+# Only set Claude key
+export ANTHROPIC_API_KEY=your-key
+
+# All tasks route to Claude
+devmind review src/
+```
+
+This works but is more expensive for simple tasks.

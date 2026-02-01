@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     API_V1_PREFIX: str = "/api/v1"
 
-    # Database
-    DATABASE_URL: str
+    # Database (required for API server, optional for CLI)
+    DATABASE_URL: Optional[str] = None
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -31,9 +31,9 @@ class Settings(BaseSettings):
     # Qdrant
     QDRANT_URL: str = "http://localhost:6333"
 
-    # LLM API Keys
-    ANTHROPIC_API_KEY: str
-    GOOGLE_API_KEY: str
+    # LLM API Keys (at least one required)
+    ANTHROPIC_API_KEY: Optional[str] = None
+    GOOGLE_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
 
     # GitHub App
@@ -43,8 +43,8 @@ class Settings(BaseSettings):
     GITHUB_PRIVATE_KEY_PATH: Optional[str] = None
     GITHUB_WEBHOOK_SECRET: Optional[str] = None
 
-    # Security
-    SECRET_KEY: str
+    # Security (required for API server, optional for CLI)
+    SECRET_KEY: Optional[str] = None
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 

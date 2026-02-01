@@ -1,0 +1,23 @@
+# DevMind Test Generator Command for Gemini CLI
+# Usage: /test <file_path>
+
+[command]
+name = "test"
+description = "Generate unit tests for a file using DevMind"
+
+[command.prompt]
+template = """
+Run the DevMind Test Generator agent on the specified file.
+
+Execute this command:
+```bash
+poetry run devmind test {{file}} --framework pytest
+```
+
+After running, review the generated tests and suggest any additional test cases.
+"""
+
+[[command.arguments]]
+name = "file"
+description = "Path to the file to generate tests for"
+required = true

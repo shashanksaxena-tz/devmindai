@@ -38,33 +38,24 @@ def setup_environment(config: Dict[str, Any]):
         if "token" in config["github"]:
             os.environ["GITHUB_TOKEN"] = config["github"]["token"]
 
-    # Ensure required settings for src.core.config.Settings
-    # We provide dummy values if they are missing, as CLI mostly runs in standalone mode
-    # without DB access for scanning/analysis tasks.
-
-    if "DATABASE_URL" not in os.environ:
-        # Dummy URL to satisfy validation.
-        # Note: If an agent actually tries to use the DB, it will fail.
-        os.environ["DATABASE_URL"] = "postgresql+asyncpg://dummy:dummy@localhost:5432/dummy"
-
-    if "SECRET_KEY" not in os.environ:
-        os.environ["SECRET_KEY"] = "dummy_secret_for_cli_standalone_mode"
-
-    if "ANTHROPIC_API_KEY" not in os.environ:
-        os.environ["ANTHROPIC_API_KEY"] = "dummy" # Placeholder, agents will fail if they need it but validation passes
-
-    if "GOOGLE_API_KEY" not in os.environ:
-        os.environ["GOOGLE_API_KEY"] = "dummy"
+    # Note: DATABASE_URL, SECRET_KEY, and API keys are all optional in config now.
+    # - DATABASE_URL and SECRET_KEY are only needed for API server mode
+    # - The LLM router handles fallback logic when some providers aren't configured
+    # - Don't set dummy values - let the router use available providers
 
 def get_cli_settings():
     """Load settings for CLI."""
     # 1. Load from .devmind.yaml
     config = load_config_file()
 
-    # 2. Setup Env Vars (including mocks for DB)
+    # 2. Setup Env Vars
     setup_environment(config)
 
     # 3. Import and return core settings
     # We import here to ensure env vars are set before Settings is instantiated
     from src.core.config import get_settings
+
+    # Clear any cached settings to pick up new env vars
+    get_settings.cache_clear()
+
     return get_settings()

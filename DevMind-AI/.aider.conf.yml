@@ -1,0 +1,52 @@
+# Aider Configuration for DevMind AI
+# Load with: aider --config .aider.conf.yml
+
+# Read conventions file for context
+read:
+  - CONVENTIONS.md
+  - CLAUDE.md
+
+# Model settings (use Gemini for cost efficiency)
+model: gemini/gemini-3-flash-preview
+
+# Repository map for better context
+repo-map: true
+map-tokens: 2048
+
+# Auto-commit settings
+auto-commits: false
+dirty-commits: false
+
+# Code style
+lint-cmd: "poetry run black --check"
+auto-lint: true
+
+# Testing
+test-cmd: "poetry run pytest tests/ -x"
+
+# Git settings
+git: true
+gitignore: true
+
+# Encoding
+encoding: utf-8
+
+# Streaming output
+stream: true
+pretty: true
+
+# File patterns to include/exclude
+include:
+  - "src/**/*.py"
+  - "tests/**/*.py"
+  - "*.md"
+  - "*.toml"
+  - "*.yml"
+
+exclude:
+  - "**/__pycache__/**"
+  - "**/.git/**"
+  - "**/node_modules/**"
+  - "**/*.pyc"
+  - ".env"
+  - "*.log"

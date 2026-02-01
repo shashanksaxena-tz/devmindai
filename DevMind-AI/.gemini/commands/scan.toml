@@ -1,0 +1,24 @@
+# DevMind Security Scan Command for Gemini CLI
+# Usage: /scan [path]
+
+[command]
+name = "scan"
+description = "Run DevMind Security Scanner agent"
+
+[command.prompt]
+template = """
+Run the DevMind Security Scanner agent on the specified path.
+
+Execute this command:
+```bash
+poetry run devmind scan {{path}} --fail-on medium
+```
+
+After running, explain each vulnerability found and provide remediation steps.
+"""
+
+[[command.arguments]]
+name = "path"
+description = "Path to scan (default: current directory)"
+required = false
+default = "."

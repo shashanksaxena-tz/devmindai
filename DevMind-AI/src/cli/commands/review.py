@@ -87,10 +87,12 @@ async def run_review(
 
         for res in f_results:
             for comment in res.comments:
-                s_score = severity_order.get(comment.severity, 0)
+                # Get severity string (handle both enum and string)
+                sev = comment.severity.value if hasattr(comment.severity, 'value') else comment.severity
+                s_score = severity_order.get(sev, 0)
                 if s_score >= min_severity_score:
-                    file_issues.append(comment)
-                    json_output["summary"][comment.severity] += 1
+                    file_issues.append((comment, res.reviewer_name))
+                    json_output["summary"][sev] += 1
                     json_output["summary"]["total"] += 1
                     if s_score >= fail_score:
                         exit_code = 1
@@ -103,26 +105,27 @@ async def run_review(
                     "path": fpath,
                     "issues": [
                         {
-                            "type": c.type,
-                            "severity": c.severity,
-                            "line": c.line,
+                            "type": c.title,
+                            "severity": c.severity.value if hasattr(c.severity, 'value') else c.severity,
+                            "line": c.line_number,
                             "message": c.message,
-                            "fix": c.fix,
-                            "reviewer": res.reviewer_name
-                        } for c in file_issues
+                            "fix": c.suggestion,
+                            "reviewer": reviewer_name
+                        } for c, reviewer_name in file_issues
                     ]
                 })
             else:
                 OutputFormatter.print_header(f"Review: {fpath}")
-                for issue in file_issues:
-                    color = "red" if issue.severity == "blocker" else "yellow" if issue.severity == "warning" else "blue"
+                for comment, reviewer_name in file_issues:
+                    sev = comment.severity.value if hasattr(comment.severity, 'value') else comment.severity
+                    color = "red" if sev == "blocker" else "yellow" if sev == "warning" else "blue"
 
                     from rich.panel import Panel
                     from rich.console import Console
                     Console().print(Panel(
-                        f"{issue.message}\n\n[italic]Fix: {issue.fix}[/italic]",
-                        title=f"[{color}]{issue.severity.upper()}: {issue.type} (Line {issue.line})[/{color}]",
-                        subtitle=f"Reviewer: {res.reviewer_name}"
+                        f"{comment.message}\n\n[italic]Fix: {comment.suggestion}[/italic]",
+                        title=f"[{color}]{sev.upper()}: {comment.title} (Line {comment.line_number})[/{color}]",
+                        subtitle=f"Reviewer: {reviewer_name}"
                     ))
 
     if format_output == "json":

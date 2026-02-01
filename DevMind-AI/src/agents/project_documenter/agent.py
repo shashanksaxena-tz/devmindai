@@ -23,6 +23,9 @@ from .generators.gemini import GeminiDocGenerator
 from .generators.windsurf import WindsurfDocGenerator
 from .generators.speckit import SpecKitGenerator
 from .generators.human import HumanDocGenerator
+from .generators.aider import AiderDocGenerator
+from .generators.cline import ClineDocGenerator
+from .generators.opencode import OpenCodeDocGenerator
 
 
 class ProjectDocumenterAgent(BaseAgent):
@@ -36,6 +39,9 @@ class ProjectDocumenterAgent(BaseAgent):
     - `cursor`: .cursor/rules/*.mdc for Cursor AI
     - `gemini`: GEMINI.md for Google Gemini Code Assist
     - `windsurf`: .windsurf/rules/*.md for Windsurf/Codeium
+    - `aider`: CONVENTIONS.md and .aider.conf.yml for Aider
+    - `cline`: .clinerules/*.md for Cline VS Code extension
+    - `opencode`: AGENTS.md and .opencode.json for OpenCode
 
     **Governance Formats:**
     - `speckit`: GitHub Spec Kit constitution files (.specify/memory/)
@@ -64,12 +70,15 @@ class ProjectDocumenterAgent(BaseAgent):
         "cursor",
         "gemini",
         "windsurf",
+        "aider",
+        "cline",
+        "opencode",
         "speckit",
         "human",
     ]
 
     # Default formats (AI-focused)
-    DEFAULT_FORMATS = ["claude", "copilot", "cursor", "gemini", "windsurf"]
+    DEFAULT_FORMATS = ["claude", "copilot", "cursor", "gemini", "windsurf", "aider", "cline", "opencode"]
 
     def __init__(self, router: LLMRouter | None = None):
         """Initialize the Project Documenter agent.
@@ -87,6 +96,9 @@ class ProjectDocumenterAgent(BaseAgent):
             "cursor": CursorDocGenerator(self.llm_client),
             "gemini": GeminiDocGenerator(self.llm_client),
             "windsurf": WindsurfDocGenerator(self.llm_client),
+            "aider": AiderDocGenerator(self.llm_client),
+            "cline": ClineDocGenerator(self.llm_client),
+            "opencode": OpenCodeDocGenerator(self.llm_client),
             "speckit": SpecKitGenerator(self.llm_client),
             "human": HumanDocGenerator(self.llm_client),
         }

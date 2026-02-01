@@ -1,25 +1,25 @@
-"""Google Gemini LLM client."""
+"""OpenAI LLM client."""
 
 import json
 from typing import Any
 
-import google.generativeai as genai
+import openai
 
 from src.core.config import settings
 from src.core.llm.base import BaseLLMClient
 
 
-class GeminiClient(BaseLLMClient):
-    """Client for Google Gemini API."""
+class OpenAIClient(BaseLLMClient):
+    """Client for OpenAI API."""
 
-    def __init__(self, model: str = "gemini-3-flash-preview"):
-        """Initialize Gemini client.
+    def __init__(self, model: str = "gpt-4o-mini"):
+        """Initialize OpenAI client.
 
         Args:
-            model: Gemini model to use
+            model: OpenAI model to use
         """
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self.model = genai.GenerativeModel(model)
+        self.client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        self.model = model
 
     async def generate(
         self,
@@ -30,22 +30,25 @@ class GeminiClient(BaseLLMClient):
         temperature: float = 0.7,
         **kwargs: Any,
     ) -> str:
-        """Generate a response using Gemini."""
-        full_prompt = prompt
+        """Generate a response using OpenAI."""
+        messages = []
+
         if system_prompt:
-            full_prompt = f"{system_prompt}\n\n{prompt}"
+            messages.append({"role": "system", "content": system_prompt})
+        else:
+            messages.append({"role": "system", "content": "You are a helpful AI assistant."})
 
-        generation_config = genai.types.GenerationConfig(
-            max_output_tokens=max_tokens,
+        messages.append({"role": "user", "content": prompt})
+
+        response = await self.client.chat.completions.create(
+            model=self.model,
+            max_tokens=max_tokens,
             temperature=temperature,
+            messages=messages,
+            **kwargs,
         )
 
-        response = await self.model.generate_content_async(
-            full_prompt,
-            generation_config=generation_config,
-        )
-
-        return response.text
+        return response.choices[0].message.content
 
     async def generate_structured(
         self,
@@ -55,7 +58,7 @@ class GeminiClient(BaseLLMClient):
         system_prompt: str | None = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
-        """Generate a structured response using Gemini."""
+        """Generate a structured response using OpenAI."""
         schema_str = json.dumps(schema, indent=2)
         structured_prompt = f"""{prompt}
 

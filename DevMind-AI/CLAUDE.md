@@ -1,3 +1,129 @@
+# DevMind AI - Claude Code Instructions
+
+## Project Overview
+
+DevMind AI is an AI-powered developer platform with 10+ intelligent agents for code review, testing, security analysis, documentation, and more.
+
+## Quick Start Commands
+
+```bash
+# Run code review
+poetry run devmind review <file> --format table
+
+# Run security scan
+poetry run devmind scan . --fail-on high
+
+# Generate tests
+poetry run devmind test <file> --framework pytest
+
+# Generate AI documentation
+poetry run devmind document /path/to/project -w --all
+
+# Start API server
+poetry run uvicorn src.api.main:app --reload
+
+# Start dashboard
+poetry run streamlit run src/dashboard/app.py
+```
+
+## Project Structure
+
+```
+DevMind-AI/
+├── src/
+│   ├── agents/           # Agent implementations
+│   │   ├── base.py       # BaseAgent class (inherit from this)
+│   │   ├── code_review/  # Code Reviewer Agent
+│   │   ├── security/     # Security Scanner Agent
+│   │   └── project_documenter/  # Project Documenter Agent
+│   ├── api/              # FastAPI routes
+│   │   ├── main.py       # App entry point
+│   │   └── routes/       # Route handlers
+│   ├── cli/              # Typer CLI
+│   │   ├── main.py       # CLI entry point
+│   │   └── commands/     # Command handlers
+│   ├── core/             # Core utilities
+│   │   ├── config.py     # Settings
+│   │   └── llm/          # LLM routing
+│   └── dashboard/        # Streamlit UI
+├── tests/                # Test suite
+└── devmind-output/       # Generated output
+```
+
+## Agent Development Pattern
+
+All agents MUST inherit from `BaseAgent`:
+
+```python
+from src.agents.base import BaseAgent, AgentContext
+from src.core.llm.router import TaskComplexity
+
+class MyAgent(BaseAgent):
+    def __init__(self):
+        super().__init__(name="my-agent", complexity=TaskComplexity.MODERATE)
+
+    async def execute(self, context: AgentContext, **kwargs) -> dict:
+        return {"success": True, "result": data}
+```
+
+## Task Complexity
+
+- `SIMPLE` - Routes to Gemini Flash (quick tasks)
+- `MODERATE` - Routes to Gemini Pro (analysis)
+- `COMPLEX` - Routes to Claude (deep reasoning)
+
+## Code Style
+
+- Python 3.11+ with type hints
+- Black formatter (line length 88)
+- PEP 8 naming conventions
+- Async/await for all agent methods
+
+## Testing
+
+```bash
+# Run all tests
+poetry run pytest tests/
+
+# Run specific test
+poetry run pytest tests/agents/test_code_review.py -v
+
+# Run with coverage
+poetry run pytest --cov=src tests/
+```
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/agents/base.py` | BaseAgent base class |
+| `src/core/llm/router.py` | LLM model routing |
+| `src/cli/main.py` | CLI registration |
+| `src/api/routes/__init__.py` | API route registration |
+
+## Available Agents
+
+1. **Code Reviewer** - `devmind review`
+2. **Security Scanner** - `devmind scan`
+3. **Test Generator** - `devmind test`
+4. **PR Reviewer** - `devmind pr-review`
+5. **Project Documenter** - `devmind document`
+6. **Documentation Agent** - API only
+7. **Tech Debt Analyzer** - API only
+8. **Incident Analyzer** - API only
+9. **Migration Agent** - API only
+10. **Query Optimizer** - API only
+11. **Pipeline Optimizer** - API only
+12. **ADR Recorder** - API only
+
+## Never Do
+
+- Never commit API keys or `.env` files
+- Never modify credentials or secrets
+- Never skip type hints in Python code
+- Never create agents without BaseAgent inheritance
+
+
 <claude-mem-context>
 # Recent Activity
 
