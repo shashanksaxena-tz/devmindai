@@ -75,7 +75,7 @@ Create `.devmind.yaml` for persistent configuration.
 llm:
   default_provider: gemini
   gemini:
-    model: gemini-2.0-flash
+    model: gemini-3-flash-preview
     temperature: 0.1
     max_tokens: 4096
   claude:
@@ -157,7 +157,7 @@ Configure LLM providers.
 llm:
   default_provider: gemini  # gemini, claude, openai
   gemini:
-    model: gemini-2.0-flash
+    model: gemini-3-flash-preview
     temperature: 0.1
     max_tokens: 4096
 ```

@@ -167,15 +167,15 @@ class OpenCodeDocGenerator(BaseDocGenerator):
             },
             "agents": {
                 "coder": {
-                    "model": "gemini/gemini-2.0-flash",
+                    "model": "gemini/gemini-3-flash-preview",
                     "maxTokens": 8000
                 },
                 "task": {
-                    "model": "gemini/gemini-2.0-flash",
+                    "model": "gemini/gemini-3-flash-preview",
                     "maxTokens": 4000
                 },
                 "title": {
-                    "model": "gemini/gemini-2.0-flash",
+                    "model": "gemini/gemini-3-flash-preview",
                     "maxTokens": 100
                 }
             },

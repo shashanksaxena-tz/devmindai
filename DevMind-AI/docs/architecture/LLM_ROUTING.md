@@ -87,7 +87,7 @@ class StyleReviewer(BaseAgent):
 export GOOGLE_API_KEY=your-key
 ```
 
-Model: `gemini-2.0-flash`
+Model: `gemini-3-flash-preview`
 - Fast inference
 - Good code understanding
 - Free tier (60 RPM)

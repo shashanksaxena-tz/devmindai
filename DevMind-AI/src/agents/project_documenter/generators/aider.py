@@ -137,7 +137,7 @@ class AiderDocGenerator(BaseDocGenerator):
 
         # Model settings based on language
         lines.append("# Model settings")
-        lines.append("model: gemini/gemini-2.0-flash")
+        lines.append("model: gemini/gemini-3-flash-preview")
         lines.append("")
 
         # Repository map

@@ -7,7 +7,7 @@ read:
   - CLAUDE.md
 
 # Model settings (use Gemini for cost efficiency)
-model: gemini/gemini-2.0-flash
+model: gemini/gemini-3-flash-preview
 
 # Repository map for better context
 repo-map: true

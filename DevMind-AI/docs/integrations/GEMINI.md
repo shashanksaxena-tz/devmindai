@@ -46,7 +46,7 @@ These limits are sufficient for normal CLI usage. If you hit limits, wait a minu
 
 ## Model Used
 
-DevMind uses `gemini-2.0-flash` by default:
+DevMind uses `gemini-3-flash-preview` by default:
 - Fast inference
 - Good for code understanding
 - Lower cost than Pro models
@@ -69,7 +69,7 @@ In `.devmind.yaml`:
 llm:
   default_provider: gemini
   gemini:
-    model: gemini-2.0-flash  # or gemini-1.5-pro
+    model: gemini-3-flash-preview  # or gemini-1.5-pro
     temperature: 0.1
     max_tokens: 4096
 ```

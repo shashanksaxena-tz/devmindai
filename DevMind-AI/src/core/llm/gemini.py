@@ -12,7 +12,7 @@ from src.core.llm.base import BaseLLMClient
 class GeminiClient(BaseLLMClient):
     """Client for Google Gemini API."""
 
-    def __init__(self, model: str = "gemini-2.0-flash"):
+    def __init__(self, model: str = "gemini-3-flash-preview"):
         """Initialize Gemini client.
 
         Args:
