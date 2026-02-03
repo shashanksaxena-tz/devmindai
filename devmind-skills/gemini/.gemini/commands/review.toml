@@ -1,0 +1,57 @@
+description = "Deep multi-pass code review for bugs, security, performance, and style"
+
+prompt = """
+Perform comprehensive code review on: {{args}}
+
+## Multi-Pass Review
+
+### Pass 1: Security 🔴
+- SQL/Command injection
+- Hardcoded secrets
+- Missing auth checks
+- XSS vulnerabilities
+
+### Pass 2: Logic 🟠
+- Off-by-one errors
+- Null handling
+- Race conditions
+- Resource leaks
+
+### Pass 3: Performance 🟡
+- N+1 queries
+- Missing pagination
+- Blocking operations
+
+### Pass 4: Maintainability 🔵
+- Complex functions
+- Deep nesting
+- No documentation
+
+## Output Format
+
+```markdown
+## Code Review: {file}
+
+**Overall:** 🟢 Ready | 🟡 Needs Changes | 🔴 Major Issues
+
+### 🔴 Critical Issues
+#### Issue: {title}
+**File:** `path:line`
+**Problem:** {description}
+
+**Current:**
+```{lang}
+{code}
+```
+
+**Fix:**
+```{lang}
+{fix}
+```
+
+### ✅ Highlights
+- {positives}
+```
+
+If large, provide continuation command.
+"""

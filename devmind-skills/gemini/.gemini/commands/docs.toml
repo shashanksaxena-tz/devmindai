@@ -1,0 +1,70 @@
+description = "Generate AI-ready project documentation"
+
+prompt = """
+Generate project documentation for: {{args}}
+
+## Analysis
+
+1. **Project Identity** - Name, version, purpose
+2. **Tech Stack** - Languages, frameworks
+3. **Structure** - Directories, entry points
+4. **Commands** - Install, dev, test
+
+## Generate Files
+
+### GEMINI.md / AGENTS.md
+```markdown
+# {Project Name}
+
+{Description}
+
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Language | {lang} |
+| Framework | {framework} |
+
+## Quick Start
+
+```bash
+# Install
+{install_command}
+
+# Run dev server
+{dev_command}
+```
+
+## Key Commands
+
+| Command | Description |
+|---------|-------------|
+| `{cmd}` | {desc} |
+
+## Project Structure
+
+```
+{structure}
+```
+
+## Code Conventions
+
+- Type hints required
+- Docstrings on public API
+```
+
+### README.md
+```markdown
+# {Project Name}
+
+{Description}
+
+## Features
+- ✨ Feature 1
+
+## Installation
+{steps}
+```
+
+For large projects, provide continuation command.
+"""

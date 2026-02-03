@@ -27,6 +27,13 @@ from .generators.aider import AiderDocGenerator
 from .generators.cline import ClineDocGenerator
 from .generators.opencode import OpenCodeDocGenerator
 
+# Per-folder documentation components
+from .folder_analyzer import FolderAnalyzer
+from .per_folder_generator import PerFolderGenerator
+from .smart_merger import SmartMerger
+from .metadata_manager import MetadataManager
+from .index_builder import IndexBuilder
+
 
 class ProjectDocumenterAgent(BaseAgent):
     """Agent that generates documentation for existing codebases.
@@ -89,6 +96,13 @@ class ProjectDocumenterAgent(BaseAgent):
         super().__init__(router)
         self.analyzer = CodebaseAnalyzer()
 
+        # Per-folder documentation components
+        self.folder_analyzer = FolderAnalyzer()
+        self.per_folder_generator = PerFolderGenerator(self.llm_client)
+        self.smart_merger = SmartMerger()
+        self.metadata_manager = MetadataManager()
+        self.index_builder = IndexBuilder()
+
         # Initialize generators
         self._generators = {
             "claude": ClaudeDocGenerator(self.llm_client),
@@ -121,6 +135,8 @@ class ProjectDocumenterAgent(BaseAgent):
                 include_human: Include human-readable docs (default: False)
                 include_speckit: Include Spec Kit constitution (default: False)
                 generator_options: Dict of format-specific options
+                per_folder_docs: Generate per-folder AI-CONTEXT.md and README.md (default: True)
+                incremental: Only regenerate changed folders (default: False)
 
         Returns:
             Dictionary with:
@@ -128,6 +144,7 @@ class ProjectDocumenterAgent(BaseAgent):
                 - generated_docs: List of generated documentation files
                 - written_files: List of files written (if write_files=True)
                 - output_path: Path to output directory
+                - folder_docs_count: Number of per-folder docs generated
         """
         path = kwargs.get("path")
         if not path:
@@ -176,11 +193,47 @@ class ProjectDocumenterAgent(BaseAgent):
                     generated_docs.append(
                         GeneratedDoc(
                             path=f"error_{format_name}.txt",
-                            content=f"Error generating {format_name} docs: {str(e)}",
+                            content=f"Error generating {format_name} docs: {e!s}",
                             format_name=format_name,
                             description=f"Error generating {format_name}",
                         )
                     )
+
+        # Generate per-folder documentation
+        folder_docs: list[GeneratedDoc] = []
+        folder_docs_count = 0
+
+        if kwargs.get("per_folder_docs", True):
+            try:
+                folder_docs, folder_docs_count = await self._generate_per_folder_docs(
+                    project_path=project_path,
+                    profile=profile,
+                    incremental=kwargs.get("incremental", False),
+                    write_files=kwargs.get("write_files", False),
+                )
+                generated_docs.extend(folder_docs)
+
+                # Add navigation index to top-level docs
+                folders = self.folder_analyzer.analyze_folders(project_path)
+                for doc in generated_docs:
+                    if doc.format_name in ["claude", "copilot", "cursor", "gemini"]:
+                        doc.content = self.index_builder.add_module_index(
+                            doc.content, folders, link_to="AI-CONTEXT.md"
+                        )
+                    elif doc.format_name == "human" and "README" in doc.path:
+                        doc.content = self.index_builder.add_folder_structure(
+                            doc.content, folders, link_to="README.md"
+                        )
+            except Exception as e:
+                # Log error but continue
+                folder_docs.append(
+                    GeneratedDoc(
+                        path="error_per_folder.txt",
+                        content=f"Error generating per-folder docs: {e!s}",
+                        format_name="per_folder",
+                        description="Error in per-folder generation",
+                    )
+                )
 
         # Prepare result
         profile_dict = self._profile_to_dict(profile)
@@ -238,6 +291,7 @@ class ProjectDocumenterAgent(BaseAgent):
             "formats_generated": formats_generated,
             "output_path": output_path,
             "readme_path": readme_path,
+            "folder_docs_count": folder_docs_count,
         }
 
     async def analyze_only(
@@ -359,3 +413,103 @@ class ProjectDocumenterAgent(BaseAgent):
         if generator:
             return generator.format_description
         return f"Unknown format: {format_name}"
+
+    async def _generate_per_folder_docs(
+        self,
+        project_path: Path,
+        profile: CodebaseProfile,
+        incremental: bool = False,
+        write_files: bool = False,
+    ) -> tuple[list[GeneratedDoc], int]:
+        """Generate per-folder documentation (AI-CONTEXT.md and README.md).
+
+        Args:
+            project_path: Root path of the project
+            profile: Analyzed codebase profile
+            incremental: Only regenerate changed folders
+            write_files: Whether to write files to disk
+
+        Returns:
+            Tuple of (list of generated docs, count of folders processed)
+        """
+        folder_docs: list[GeneratedDoc] = []
+        folders_processed = 0
+
+        # Initialize metadata manager
+        self.metadata_manager.initialize(project_path)
+
+        # Analyze folders
+        folders = self.folder_analyzer.analyze_folders(project_path)
+
+        # Filter for incremental mode
+        if incremental:
+            folders = [
+                f for f in folders if self.metadata_manager.has_folder_changed(f.path)
+            ]
+
+        # Generate docs for each folder
+        for folder_info in folders:
+            try:
+                # Generate AI-CONTEXT.md
+                ai_context = await self.per_folder_generator.generate_ai_context(
+                    folder_info, profile
+                )
+
+                # Smart merge if exists
+                ai_context_path = folder_info.path / "AI-CONTEXT.md"
+                if ai_context_path.exists():
+                    try:
+                        existing_content = ai_context_path.read_text(encoding="utf-8")
+                        if self.smart_merger.has_markers(existing_content):
+                            ai_context.content = self.smart_merger.merge(
+                                existing_content, ai_context.content
+                            )
+                    except Exception:
+                        pass  # Use fresh content if merge fails
+
+                folder_docs.append(ai_context)
+
+                # Generate README.md
+                readme = await self.per_folder_generator.generate_readme(
+                    folder_info, profile
+                )
+
+                # Smart merge if exists
+                readme_path = folder_info.path / "README.md"
+                if readme_path.exists():
+                    try:
+                        existing_content = readme_path.read_text(encoding="utf-8")
+                        if self.smart_merger.has_markers(existing_content):
+                            readme.content = self.smart_merger.merge(
+                                existing_content, readme.content
+                            )
+                    except Exception:
+                        pass  # Use fresh content if merge fails
+
+                folder_docs.append(readme)
+
+                # Update metadata if writing files
+                if write_files:
+                    self.metadata_manager.update_folder(
+                        folder_info.path, folder_info.file_count
+                    )
+
+                folders_processed += 1
+
+            except Exception as e:
+                # Log error but continue with other folders
+                folder_docs.append(
+                    GeneratedDoc(
+                        path=f"error_{folder_info.relative_path}.txt",
+                        content=f"Error generating docs for {folder_info.relative_path}: {e!s}",
+                        format_name="per_folder",
+                        description=f"Error for {folder_info.relative_path}",
+                    )
+                )
+
+        # Mark full run complete if not incremental
+        if not incremental and write_files:
+            self.metadata_manager.mark_full_run()
+
+        return folder_docs, folders_processed
+

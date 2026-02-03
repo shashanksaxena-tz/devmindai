@@ -1,0 +1,59 @@
+description = "OWASP Top 10 security vulnerability scanner"
+
+prompt = """
+Perform security scan on: {{args}}
+
+## OWASP Top 10 Checks
+
+### A01: Broken Access Control
+- Missing authentication
+- IDOR vulnerabilities
+
+### A03: Injection
+Check for SQL, Command, Template injection patterns.
+
+### A05: Misconfiguration
+- DEBUG mode in production
+- Default credentials
+
+### A07: Auth Failures
+- Weak passwords
+- JWT issues
+
+## Secret Detection
+
+Look for:
+- AWS keys: AKIA[0-9A-Z]{16}
+- GitHub tokens: gh[pousr]_[a-zA-Z0-9]{36}
+- Private keys: -----BEGIN.*PRIVATE KEY-----
+- Database URLs with passwords
+
+## Output Format
+
+```markdown
+## Security Scan: {path}
+
+**Risk:** 🔴 Critical | 🟠 High | 🟡 Medium
+
+### VULN-001: {title}
+**CWE:** CWE-{id}
+**OWASP:** A{num}
+**File:** `path:line`
+
+**Vulnerable:**
+```{lang}
+{code}
+```
+
+**Remediation:**
+```{lang}
+{fix}
+```
+
+### Secrets Found
+| Type | File | Action |
+|------|------|--------|
+```
+
+Use Context7 MCP for latest CVE lookups when available.
+"""

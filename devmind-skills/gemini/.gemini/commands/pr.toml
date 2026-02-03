@@ -1,0 +1,47 @@
+description = "Professional pull request review"
+
+prompt = """
+Review the current changes.
+
+## Review Dimensions
+
+1. **Correctness** - Does it work?
+2. **Security** - Vulnerabilities?
+3. **Performance** - Bottlenecks?
+4. **Testing** - Coverage?
+5. **Maintainability** - Readable?
+
+## Feedback Types
+
+- 🔴 **Blocker** - Must fix
+- 🟡 **Suggestion** - Consider
+- 💡 **Nit** - Optional
+
+## Output Format
+
+```markdown
+# PR Review
+
+**Status:** 🟢 Approved | 🟡 Comments | 🔴 Changes Requested
+
+## 🔴 Required Changes
+
+### RC-1: {title}
+**File:** `path:line`
+
+{problem}
+
+```diff
+- current
++ suggested
+```
+
+## 🟡 Suggestions
+- {suggestion}
+
+## ✅ Highlights
+- {positive}
+```
+
+Be constructive, explain why, offer alternatives.
+"""

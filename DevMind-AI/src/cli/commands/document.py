@@ -21,6 +21,8 @@ async def run_document(
     output_to_project: bool,
     analyze_only: bool,
     format_output: str,
+    per_folder: bool = True,
+    incremental: bool = False,
 ):
     """Async implementation of document generation."""
     from src.agents.project_documenter import ProjectDocumenterAgent
@@ -64,6 +66,8 @@ async def run_document(
             write_files=write_files,
             output_to_project=output_to_project,
             output_dir=str(output_dir) if output_dir else None,
+            per_folder_docs=per_folder,
+            incremental=incremental,
         )
 
     if not result.get("success"):
@@ -130,6 +134,7 @@ def _print_generation_summary(console: Console, result: dict, files_written: boo
     written = result.get("written_files", [])
     output_path = result.get("output_path")
     readme_path = result.get("readme_path")
+    folder_docs_count = result.get("folder_docs_count", 0)
 
     OutputFormatter.print_header(f"Documentation Generated: {profile.get('name', 'Project')}")
 
@@ -169,6 +174,7 @@ def _print_generation_summary(console: Console, result: dict, files_written: boo
             "opencode": "bright_magenta",
             "speckit": "red",
             "human": "white",
+            "per_folder": "bright_cyan",
         }
         color = format_colors.get(format_name, "white")
 
@@ -188,6 +194,8 @@ def _print_generation_summary(console: Console, result: dict, files_written: boo
 
     if files_written and written:
         console.print(f"[bold]Written:[/bold] {len(written)} files")
+        if folder_docs_count > 0:
+            console.print(f"[bold]Per-Folder Docs:[/bold] {folder_docs_count} folders documented")
         console.print()
 
         # Show output location
@@ -211,8 +219,33 @@ def _print_generation_summary(console: Console, result: dict, files_written: boo
         OutputFormatter.print_success(f"Documentation generated successfully!")
 
     else:
+        # Preview mode - show generated content
         console.print()
-        console.print("[dim]Use -w or --write to write files to disk[/dim]")
+        console.print("[bold yellow]Preview Mode - Content Not Written to Disk[/bold yellow]")
+        console.print()
+        
+        # Show the content of generated docs
+        for doc in docs[:5]:  # Show first 5 files as preview
+            if doc.get('path', '').startswith('error_'):
+                continue
+            
+            format_name = doc.get("format", "unknown")
+            file_path = doc.get("path", "")
+            content = doc.get("content", "")
+            
+            if content:
+                console.print(Panel(
+                    f"[dim]{content[:500]}{'...' if len(content) > 500 else ''}[/dim]",
+                    title=f"[cyan]{format_name}:[/cyan] {file_path}",
+                    border_style="blue",
+                ))
+                console.print()
+        
+        if len(docs) > 5:
+            console.print(f"[dim]... and {len(docs) - 5} more files[/dim]")
+            console.print()
+        
+        console.print("[yellow]Use -w or --write to save files to disk[/yellow]")
         console.print("[dim]Use --to-project to write directly to the target project[/dim]")
 
 
@@ -311,6 +344,21 @@ def document_command(
         "--output-format",
         help="Output format: text, json",
     ),
+    per_folder: bool = typer.Option(
+        True,
+        "--per-folder/--no-per-folder",
+        help="Generate per-folder AI-CONTEXT.md and README.md",
+    ),
+    incremental: bool = typer.Option(
+        False,
+        "--incremental", "-i",
+        help="Only regenerate documentation for changed folders",
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        help="Force regeneration of all folders (ignore cache)",
+    ),
 ):
     """
     Generate AI-agent documentation for a project.
@@ -347,6 +395,8 @@ def document_command(
         devmind document . --all -w              # All formats to devmind-output/
         devmind document . -f claude -f aider -w # Specific formats
         devmind document . --analyze             # Only analyze, no generation
+        devmind document . -w --incremental      # Only regenerate changed folders
+        devmind document . -w --no-per-folder    # Skip per-folder docs
     """
     # Determine formats
     if all_formats:
@@ -363,6 +413,9 @@ def document_command(
     if include_speckit and "speckit" not in selected_formats:
         selected_formats.append("speckit")
 
+    # Handle force flag
+    use_incremental = incremental and not force
+
     asyncio.run(
         run_document(
             path=path,
@@ -372,5 +425,7 @@ def document_command(
             output_to_project=to_project,
             analyze_only=analyze,
             format_output=format_output,
+            per_folder=per_folder,
+            incremental=use_incremental,
         )
     )

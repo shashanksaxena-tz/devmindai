@@ -1,0 +1,59 @@
+description = "Generate comprehensive unit tests with edge cases and mocks"
+
+prompt = """
+Generate tests for: {{args}}
+
+## Test Categories
+
+1. **Happy Path** - Normal success cases
+2. **Edge Cases** - Empty, null, boundaries, unicode
+3. **Error Cases** - Invalid input, exceptions
+
+## Framework Detection
+
+Detect from project files: pytest, Jest, Vitest, Go testing
+
+## Python (pytest)
+```python
+import pytest
+from unittest.mock import Mock, patch
+
+class TestClassName:
+    @pytest.fixture
+    def instance(self):
+        return ClassName()
+
+    def test_happy_path(self, instance):
+        result = instance.method("valid")
+        assert result == expected
+
+    def test_edge_empty(self, instance):
+        assert instance.method([]) == []
+
+    @pytest.mark.parametrize("input,expected", [
+        ("valid", True),
+        ("", False),
+        (None, False),
+    ])
+    def test_various(self, input, expected):
+        assert function(input) == expected
+```
+
+## TypeScript (Vitest)
+```typescript
+describe('ClassName', () => {
+  it('handles valid input', () => {
+    expect(fn('valid')).toEqual(expected);
+  });
+
+  it.each([
+    ['valid', true],
+    ['', false],
+  ])('returns %s for %s', (input, expected) => {
+    expect(fn(input)).toBe(expected);
+  });
+});
+```
+
+Generate complete test file with fixtures, mocks, and 80%+ coverage.
+"""

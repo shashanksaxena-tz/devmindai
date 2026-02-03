@@ -1,0 +1,61 @@
+description = "Generate per-folder AI-CONTEXT.md and README.md"
+
+prompt = """
+Generate documentation for folder: {{args}}
+
+## Folder Analysis
+
+1. **Purpose** - What does it do?
+2. **Key Files** - Main files and roles
+3. **Public API** - Classes/functions exposed
+4. **Dependencies** - What it imports
+5. **Consumers** - Who uses it
+
+## Generate Files
+
+### AI-CONTEXT.md
+```markdown
+<!-- AUTO-GENERATED: Header -->
+# {folder_name}
+
+{Description}
+<!-- END AUTO-GENERATED -->
+
+<!-- AUTO-GENERATED: Purpose -->
+## Purpose
+{What and why}
+<!-- END AUTO-GENERATED -->
+
+<!-- AUTO-GENERATED: Key Files -->
+## Key Files
+| File | Description |
+|------|-------------|
+<!-- END AUTO-GENERATED -->
+
+<!-- CUSTOM SECTION: Notes -->
+## Notes
+{User content - preserved on regeneration}
+<!-- END CUSTOM SECTION -->
+```
+
+### README.md
+```markdown
+# {Folder Name}
+
+{Description}
+
+## Structure
+```
+folder/
+├── {files}
+```
+```
+
+## Section Markers
+
+- `<!-- AUTO-GENERATED -->` - Regenerated each run
+- `<!-- CUSTOM SECTION -->` - Preserved during regeneration
+
+Document folders with: __init__.py, 3+ files, entry points.
+Skip: node_modules, __pycache__, .git, venv, dist.
+"""
