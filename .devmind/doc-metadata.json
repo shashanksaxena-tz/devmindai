@@ -1,0 +1,191 @@
+{
+  "version": "1.0",
+  "project_name": "DevMind AI",
+  "last_updated": "2026-02-03T14:40:18Z",
+  "current_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+  "modules": {
+    "DevMind-AI/src/core/llm": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:40:18Z",
+      "file_count": 7,
+      "status": "completed",
+      "files_documented": [
+        "base.py",
+        "router.py",
+        "claude.py",
+        "gemini.py",
+        "openai.py"
+      ]
+    },
+    "DevMind-AI/src/core/auth": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.413557+00:00",
+      "file_count": 1
+    },
+    "DevMind-AI/src/core": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.430561+00:00",
+      "file_count": 15
+    },
+    "DevMind-AI/src/db": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.445462+00:00",
+      "file_count": 14
+    },
+    "DevMind-AI/src/agents/vuln_scanner": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.460811+00:00",
+      "file_count": 13
+    },
+    "DevMind-AI/src/agents/code_reviewer": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.475827+00:00",
+      "file_count": 15
+    },
+    "DevMind-AI/src/agents/test_generator": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.493432+00:00",
+      "file_count": 8
+    },
+    "DevMind-AI/src/agents/doc_generator": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.509414+00:00",
+      "file_count": 5
+    },
+    "DevMind-AI/src/agents/debt_analyzer": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.524819+00:00",
+      "file_count": 6
+    },
+    "DevMind-AI/src/agents/code_migrator": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.542805+00:00",
+      "file_count": 6
+    },
+    "DevMind-AI/src/agents/query_optimizer": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.559718+00:00",
+      "file_count": 5
+    },
+    "DevMind-AI/src/agents/incident_responder": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.575784+00:00",
+      "file_count": 8
+    },
+    "DevMind-AI/src/agents/pipeline_generator": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.591798+00:00",
+      "file_count": 6
+    },
+    "DevMind-AI/src/agents/adr_recorder": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.609188+00:00",
+      "file_count": 6
+    },
+    "DevMind-AI/src/agents/project_documenter": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.626127+00:00",
+      "file_count": 23
+    },
+    "DevMind-AI/src/agents": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.641702+00:00",
+      "file_count": 124
+    },
+    "DevMind-AI/src/integrations": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.658566+00:00",
+      "file_count": 5
+    },
+    "DevMind-AI/src/api": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.728758+00:00",
+      "file_count": 21
+    },
+    "DevMind-AI/src/cli": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.830341+00:00",
+      "file_count": 19
+    },
+    "DevMind-AI/tests/agents": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.851040+00:00",
+      "file_count": 54
+    },
+    "DevMind-AI/tests/api": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.874231+00:00",
+      "file_count": 11
+    },
+    "DevMind-AI/tests/core": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.893265+00:00",
+      "file_count": 3
+    },
+    "DevMind-AI/tests/db": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.914460+00:00",
+      "file_count": 2
+    },
+    "DevMind-AI/tests": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.941910+00:00",
+      "file_count": 82
+    },
+    "devmind-skills/claude": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:18.963460+00:00",
+      "file_count": 6
+    },
+    "devmind-skills/antigravity": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:19.011337+00:00",
+      "file_count": 7
+    },
+    "devmind-skills/gemini": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:19.029484+00:00",
+      "file_count": 1
+    },
+    "frontend/src/components": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:19.045979+00:00",
+      "file_count": 1
+    },
+    "frontend/src/hooks": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:19.064373+00:00",
+      "file_count": 1
+    },
+    "frontend/src/lib": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:19.080799+00:00",
+      "file_count": 5
+    },
+    "frontend/src/types": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:19.095734+00:00",
+      "file_count": 1
+    },
+    "frontend/src": {
+      "last_commit": "d9bc9d2908b51be8fc4af9dd38c611fb3888d1df",
+      "generated_at": "2026-02-03T14:44:19.112138+00:00",
+      "file_count": 26
+    }
+  },
+  "folders_pending": [
+    "DevMind-AI/src/agents",
+    "DevMind-AI/src/core",
+    "DevMind-AI/src/cli",
+    "DevMind-AI/src/api",
+    "DevMind-AI/src/db",
+    "DevMind-AI/src/integrations",
+    "DevMind-AI/tests",
+    "devmind-skills/claude",
+    "devmind-skills/antigravity",
+    "devmind-skills/gemini",
+    "frontend/src/components",
+    "frontend/src/hooks",
+    "frontend/src/lib"
+  ]
+}

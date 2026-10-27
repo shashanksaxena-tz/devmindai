@@ -7,12 +7,14 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #6018 | 10:03 PM | 🔵 | Video URL Refresh Error Handling Code | ~358 |
+| #6019 | 10:03 PM | 🔴 | Fix Video URL Refresh Response Parsing | ~323 |
+| #6018 | " | 🔵 | Video URL Refresh Error Handling Code | ~358 |
 
 ### Feb 3, 2026
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #6421 | 10:42 PM | 🔵 | Recording Detail Page Structure Analysis | ~407 |
 | #6307 | 1:59 PM | ✅ | Added AssignProjectModal State to Recording Detail Page | ~264 |
 | #6305 | " | ✅ | Added AssignToProjectModal Import to Recording Detail Page | ~277 |
 </claude-mem-context>
